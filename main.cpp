@@ -1,7 +1,10 @@
 #include <iostream>
+#include "lib/registerfile.cpp"
 
 int main()
 {
-    std::cout << "hello\n";
+    registerfile reg;
+    reg.reset();
+    reg.dump();
     return 0;
 }
