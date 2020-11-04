@@ -79,3 +79,37 @@ uint32_t rv32i::get_funct7(uint32_t insn)
 {
     return (insn & 0xFE000000);
 }
+
+// Extract and return the imm_i field from the given instruction
+int32_t rv32i::get_imm_i(uint32_t insn)
+{
+    return (insn & 0xFFFF00000);
+}
+
+// Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn);
+int32_t rv32i::get_imm_u(uint32_t insn)
+{
+    return (insn & 0xFFFFF0000);
+}
+
+// Extract and return the imm_b field from the given instruction
+int32_t rv32i::get_imm_b(uint32_t insn)
+{
+    int32_t imm_b = (insn & 0xF00) >> (8 - 1); // extract & shift bits 8 - 11 to 1 - 5
+}
+
+// Extract and return the imm_s field from the given instruction
+int32_t rv32i ::get_imm_s(uint32_t insn)
+{
+    int32_t imm_s = (insn & 0xfe000000) >> (25 - 5); // extract & shift bits 5 - 11
+    imm_s |= (insn & 0x00000f80) >> (7 - 0);         // extract & shift bits 0 - 4
+    if (insn & 0x80000000)                           // sign - extend
+        imm_s |= 0xfffff000;
+
+    return imm_s;
+}
+
+// Extract and return the imm_j field from the given instruction
+int32_t rv32i::get_imm_j(uint32_t insn)
+{
+}
