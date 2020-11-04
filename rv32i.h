@@ -88,4 +88,19 @@ public:
     void exec_xxx(uint32_t insn, std::ostream *);
     void tick();
     void run(uint64_t limit);
+
+    // String render formatting
+    std::string render_illegal_insn() const;
+    std::string render_lui(uint32_t insn) const;
+    std::string render_auipc(uint32_t insn) const;
+    std::string render_jal(uint32_t insn) const;
+    std::string render_jalr(uint32_t insn) const;
+    std::string render_btype(uint32_t insn, const char *mnemonic) const;
+    std::string render_itype_load(uint32_t insn, const char *mnemonic) const;
+    std::string render_stype(uint32_t insn, const char *mnemonic) const;
+    std::string render_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i) const;
+    std::string render_rtype(uint32_t insn, const char *mnemonic) const;
+    std::string render_fence(uint32_t insn) const;
+    std::string render_ecall(uint32_t insn) const;
+    std::string render_ebreak(uint32_t insn) const;
 };

@@ -40,6 +40,33 @@ void rv32i::disasm(void)
 // the disassembled instruction text. This function will not print anything.
 std::string rv32i::decode(uint32_t insn) const
 {
+    uint32_t opcode = get_opcode(insn);
+
+    switch (opcode)
+    {
+    case opcode_lui:
+        return render_lui(insn);
+
+    case opcode_auipc:
+        return render_auipc(insn);
+
+    case opcode_jal:
+        return render_jal(insn);
+
+    case opcode_jalr:
+        return render_jalr(insn);
+
+        // case opcode_btype:
+        //     return render_btype(insn, mnemonic);
+
+    case opcode_load_imm:
+        /* code */
+        break;
+
+    default:
+        return render_illegal_insn();
+    }
+
     return "";
 }
 
@@ -127,5 +154,6 @@ int32_t rv32i::get_imm_j(uint32_t insn)
     imm_j |= (insn & 0x80000000) >> 11;        // extract & shift bit 31 to 20
     if (insn & 0x80000000)                     // sign - extend
         imm_j |= 0xFFE00000;
-    return imm_j
+    return imm_j;
 }
+
