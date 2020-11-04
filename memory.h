@@ -1,5 +1,9 @@
+#ifndef memory_H
+#define memory_H
+
 #include <cstdint>
 #include <string>
+#include "hex.h"
 
 class memory
 {
@@ -26,3 +30,5 @@ public:
 
     bool load_file(const std::string &fname);
 };
+
+#endif // memory_H
