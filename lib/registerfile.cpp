@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include "../include/registerfile.h"
+#include "../include/hex.h"
 
 // Initialize register x0 to zero, and all other registers to 0xf0f0f0f0.
 void registerfile::reset()
@@ -52,7 +53,7 @@ void registerfile::dump() const
     std::cout << std::setfill(' ') << std::right << std::setw(3) << "x0";
     for (int i = 0; i < 8; i++)
     {
-        std::cout << " " << std::setfill('0') << std::setw(8) << std::hex << this->registers[i];
+        std::cout << " " << hex32(this->registers[i]);
     }
     std::cout << "\n";
 
@@ -60,7 +61,7 @@ void registerfile::dump() const
     std::cout << std::setfill(' ') << std::right << std::setw(3) << "x8";
     for (int i = 8; i < 16; i++)
     {
-        std::cout << " " << std::setfill('0') << std::setw(8) << std::hex << this->registers[i];
+        std::cout << " " << hex32(this->registers[i]);
     }
     std::cout << "\n";
 
@@ -68,7 +69,7 @@ void registerfile::dump() const
     std::cout << std::setfill(' ') << std::right << std::setw(3) << "x16";
     for (int i = 16; i < 24; i++)
     {
-        std::cout << " " << std::setfill('0') << std::setw(8) << std::hex << this->registers[i];
+        std::cout << " " << hex32(this->registers[i]);
     }
     std::cout << "\n";
 
@@ -76,7 +77,7 @@ void registerfile::dump() const
     std::cout << std::setfill(' ') << std::right << std::setw(3) << "x24";
     for (int i = 24; i < 32; i++)
     {
-        std::cout << " " << std::setfill('0') << std::setw(8) << std::hex << this->registers[i];
+        std::cout << " " << hex32(this->registers[i]);
     }
     std::cout << "\n";
 }
