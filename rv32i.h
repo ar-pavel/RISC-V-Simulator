@@ -61,10 +61,20 @@ public:
 
     // Extract and return the funct7 field from the given instruction
     static uint32_t get_funct7(uint32_t insn);
+
+    // Extract and return the imm_i field from the given instruction
     static int32_t get_imm_i(uint32_t insn);
+
+    // Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn);
     static int32_t get_imm_u(uint32_t insn);
+
+    // Extract and return the imm_b field from the given instruction
     static int32_t get_imm_b(uint32_t insn);
+
+    // Extract and return the imm_s field from the given instruction
     static int32_t get_imm_s(uint32_t insn);
+
+    // Extract and return the imm_j field from the given instruction
     static int32_t get_imm_j(uint32_t insn);
 
     // Member functions from Assignment 5
