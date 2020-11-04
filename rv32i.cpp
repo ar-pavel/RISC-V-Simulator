@@ -157,3 +157,42 @@ int32_t rv32i::get_imm_j(uint32_t insn)
     return imm_j;
 }
 
+void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rd = get_rd(insn);
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+    int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "slt     ");
+        s.resize(instruction_width, ' ');
+        // slt x4,x14,x15 // x4 = (0xf0f0f0f0 < 0xf0f0f0f0) ? 1 : 0 = 0x00000000
+        *pos << s << "// "
+             << "x4 = ("
+             << hex0x32(rs1)
+             << " < "
+             << hex0x32(rs2)
+             << " ? 1 : 0 = "
+             << hex0x32(val);
+    }
+    regs.set(rd, val);
+    pc += 4;
+}
+
+void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
+{
+    if (pos)
+    {
+        std::string s = render_ebreak(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  HALT";
+    }
+    halt = true;
+}
+
+std::string rv32i::render_illegal_insn() const
+{
+
+    return "";
+}

@@ -89,6 +89,9 @@ public:
     void tick();
     void run(uint64_t limit);
 
+    void exec_ebreak(uint32_t insn, std::ostream *pos);
+    void exec_slt(uint32_t insn, std::ostream *pos);
+
     // String render formatting
     std::string render_illegal_insn() const;
     std::string render_lui(uint32_t insn) const;
