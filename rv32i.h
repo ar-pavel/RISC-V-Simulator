@@ -27,7 +27,6 @@ private:
     bool show_instructions;
     bool show_registers;
     uint64_t insn_counter;
-    uint32_t pc;
 
 public:
     // Member functions from Assignment 4
