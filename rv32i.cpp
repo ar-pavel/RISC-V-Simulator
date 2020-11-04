@@ -112,7 +112,7 @@ int32_t rv32i ::get_imm_s(uint32_t insn)
     int32_t imm_s = (insn & 0xfe000000) >> 20; // extract & shift bits 25 - 31 to 5 - 11
     imm_s |= (insn & 0x00000f80) >> 7;         // extract & shift bits 7 - 11 to 0 - 4
     if (insn & 0x80000000)                     // sign - extend
-        imm_s |= 0xfffff000;
+        imm_s |= 0xFFFFF000;
 
     return imm_s;
 }
@@ -125,4 +125,7 @@ int32_t rv32i::get_imm_j(uint32_t insn)
     imm_j |= (insn & 0x100000) >> 9;           // extract & shift bit 20 to bit 11
     imm_j |= (insn & 0xFF000);                 // extract & shift bits 12 - 19 to 12 - 19
     imm_j |= (insn & 0x80000000) >> 11;        // extract & shift bit 31 to 20
+    if (insn & 0x80000000)                     // sign - extend
+        imm_j |= 0xFFE00000;
+    return imm_j
 }
