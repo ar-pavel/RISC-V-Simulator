@@ -43,11 +43,23 @@ public:
     std::string decode(uint32_t insn) const;
 
     // Static Member functions from Assignment 4
+
+    // Extract and return the opcode field from the given instruction
     static uint32_t get_opcode(uint32_t insn);
+
+    // Extract and return the rd field from the given instruction.
     static uint32_t get_rd(uint32_t insn);
+
+    // Extract and return the funct3 field from the given instruction
     static uint32_t get_funct3(uint32_t insn);
+
+    // Extract and return the rs1 field from the given instruction
     static uint32_t get_rs1(uint32_t insn);
+
+    // Extract and return the rs2 field from the given instruction
     static uint32_t get_rs2(uint32_t insn);
+
+    // Extract and return the funct7 field from the given instruction
     static uint32_t get_funct7(uint32_t insn);
     static int32_t get_imm_i(uint32_t insn);
     static int32_t get_imm_u(uint32_t insn);
