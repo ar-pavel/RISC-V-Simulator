@@ -93,23 +93,36 @@ int32_t rv32i::get_imm_u(uint32_t insn)
 }
 
 // Extract and return the imm_b field from the given instruction
+// bits [12][10:5][4:1][11]
 int32_t rv32i::get_imm_b(uint32_t insn)
 {
-    int32_t imm_b = (insn & 0xF00) >> (8 - 1); // extract & shift bits 8 - 11 to 1 - 5
+    int32_t imm_b = (insn & 0xF00) >> 7; // extract & shift bits 8 - 11 to 1 - 4
+    imm_b |= (insn & 0x7E000000) >> 20;  // extract & shift bits 25 - 30 to 5 - 10
+    imm_b |= (insn & 0x80) << 4;         // extract & shift bit 7 to 11
+    imm_b |= (insn & 0x80000000) >> 19;  // extract & shift bit 31 to 12
+    if (insn & 0x80000000)               // sign - extend
+        imm_b |= 0xFFFFE000;
+    return imm_b;
 }
 
 // Extract and return the imm_s field from the given instruction
+// bits [11:5][4:0]
 int32_t rv32i ::get_imm_s(uint32_t insn)
 {
-    int32_t imm_s = (insn & 0xfe000000) >> (25 - 5); // extract & shift bits 5 - 11
-    imm_s |= (insn & 0x00000f80) >> (7 - 0);         // extract & shift bits 0 - 4
-    if (insn & 0x80000000)                           // sign - extend
+    int32_t imm_s = (insn & 0xfe000000) >> 20; // extract & shift bits 25 - 31 to 5 - 11
+    imm_s |= (insn & 0x00000f80) >> 7;         // extract & shift bits 7 - 11 to 0 - 4
+    if (insn & 0x80000000)                     // sign - extend
         imm_s |= 0xfffff000;
 
     return imm_s;
 }
 
 // Extract and return the imm_j field from the given instruction
+// bits [20][10:1][11][19:12]
 int32_t rv32i::get_imm_j(uint32_t insn)
 {
+    int32_t imm_j = (insn & 0x7FE00000) >> 20; // extract & shift bits 21 - 30 to 1 - 10
+    imm_j |= (insn & 0x100000) >> 9;           // extract & shift bit 20 to bit 11
+    imm_j |= (insn & 0xFF000);                 // extract & shift bits 12 - 19 to 12 - 19
+    imm_j |= (insn & 0x80000000) >> 11;        // extract & shift bit 31 to 20
 }
