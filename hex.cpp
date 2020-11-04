@@ -13,8 +13,7 @@ std::string hex8(uint8_t i)
     return os.str();
 }
 
-// This function will return a std::string with 8 hex digits representing the 32 bits of the i
-// argument.
+// This function will return a std::string with 8 hex digits representing the 32 bits of the i argument.
 std::string hex32(uint32_t i)
 {
     std::ostringstream os;
