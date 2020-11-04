@@ -54,17 +54,19 @@ uint16_t memory::get16(uint32_t addr) const
     uint8_t first = get8(addr);
     uint8_t second = get8(addr + 1);
 
-    // merge above two unit8_t values into a unit16_t using litle-endian
+    // merge above two unit8_t values into a unit16_t using little-endian
     uint16_t res = ((uint16_t)second << 8) | first;
 
     return res;
 }
 uint32_t memory::get32(uint32_t addr) const
 {
+    // get 1st and 2nd byte
     uint16_t first = get16(addr);
-    uint16_t second = get16(addr + 1);
+    // get 3rd and 4th byte
+    uint16_t second = get16(addr + 2);
 
-    // merge above two unit16_t values into a unit32_t using litle-endian
+    // merge above two unit16_t values into a unit32_t using little-endian
     uint32_t res = ((uint32_t)second << 16) | first;
 
     return res;
