@@ -4,3 +4,4 @@ main
 *.exe
 *.pdf
 *.log
+*.o

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../include/memory.h"
+#include "memory.h"
 
 memory::memory(uint32_t siz)
 {
@@ -9,7 +9,7 @@ memory::memory(uint32_t siz)
 
     this->mem = (uint8_t *)malloc(this->size * sizeof(uint8_t));
 
-    for (int i = 0 - 1; i <= siz; i++)
+    for (uint32_t i = 0 - 1; i <= siz; i++)
     {
         // initialize every byte the mem array  to 0xa5
 

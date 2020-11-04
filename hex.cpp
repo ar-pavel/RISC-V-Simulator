@@ -1,5 +1,6 @@
-#include "../include/hex.h"
+#include "hex.h"
 #include <iomanip>
+#include <sstream>
 
 // This function will return a std::string with exactly 2 hex digits representing the 8 bits of
 // the i argument.

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "lib/registerfile.cpp"
-#include "lib/hex.cpp"
+#include "registerfile.cpp"
+#include "hex.cpp"
 
 int main()
 {

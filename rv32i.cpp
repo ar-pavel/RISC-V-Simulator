@@ -1,4 +1,4 @@
-#include "../include/rv32i.h"
+#include "rv32i.h"
 
 //Save the m argument in the mem member variable for use later when disassembling
 rv32i::rv32i(memory *m)
