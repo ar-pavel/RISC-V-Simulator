@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "rv32i.h"
 #include "hex.h"
@@ -40,6 +41,8 @@ void rv32i::disasm(void)
 // the disassembled instruction text. This function will not print anything.
 std::string rv32i::decode(uint32_t insn) const
 {
+    std::string pred;
+    std::string succ;
     uint32_t opcode = get_opcode(insn);
 
     switch (opcode)
@@ -80,6 +83,7 @@ uint32_t rv32i::get_opcode(uint32_t insn)
 // Extract and return the rd field from the given instruction
 uint32_t rv32i::get_rd(uint32_t insn)
 {
+    //extracts 6 - 0 bits
     return (insn & 0xF80);
 }
 
@@ -193,6 +197,178 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
 
 std::string rv32i::render_illegal_insn() const
 {
+    std::ostringstream os;
 
-    return "";
+    os << " ERRROR: UNIMPLEMENTED INSTRUCTION";
+
+    return os.str();
+}
+std::string rv32i::render_lui(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+
+    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((get_imm_u(insn) >> 12) & 0x0fffff);
+
+    return os.str();
+}
+std::string rv32i::render_auipc(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((get_imm_u(insn) >> 12) & 0x0fffff);
+
+    return os.str();
+}
+std::string rv32i::render_jal(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " jal     x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((get_imm_j(insn) + pc));
+
+    return os.str();
+}
+std::string rv32i::render_jalr(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " jalr    x" << std::dec << get_rd(insn) << "," << get_imm_i(insn) << "(x" << get_rs1(insn) << ")";
+    return os.str();
+}
+
+std::string rv32i::render_btype(uint32_t insn, const char *mnemonic) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << mnemonic;
+    os << " x" << std::dec << get_rs1(insn) << ",x" << get_rs2(insn) << ","
+       << "0x" << std::hex << (get_imm_b(insn) + pc);
+    return os.str();
+}
+
+std::string rv32i::render_itype_load(uint32_t insn, const char *mnemonic) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << mnemonic;
+    os << " x" << std::dec << get_rd(insn) << "," << get_imm_i(insn) << "(x" << get_rs1(insn) << ")";
+    return os.str();
+}
+std::string rv32i::render_stype(uint32_t insn, const char *mnemonic) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << mnemonic;
+    os << " x" << std::dec << get_rs2(insn) << "," << get_imm_s(insn) << "(x" << get_rs1(insn) << ")";
+
+    return os.str();
+}
+
+std::string rv32i::render_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+
+    os << mnemonic;
+
+    if (get_funct3(insn) == 0b101 || get_funct3(insn) == 0b001)
+    {
+        os << " x" << std::dec << get_rd(insn) << ",x" << get_rs1(insn) << "," << ((insn & 0x1f00000) >> 20);
+    }
+    else
+    {
+        os << " x" << std::dec << get_rd(insn) << ",x" << get_rs1(insn) << "," << get_imm_i(insn);
+    }
+
+    return os.str();
+}
+
+std::string rv32i::render_rtype(uint32_t insn, const char *mnemonic) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << mnemonic;
+    os << " x" << std::dec << get_rd(insn) << ",x" << get_rs1(insn) << ",x" << get_rs2(insn);
+    return os.str();
+}
+
+std::string rv32i::render_fence(uint32_t insn) const
+{
+    std::ostringstream os;
+    std::string pred, succ;
+
+    os << hex32(insn) << " "; // the instruction hex value
+
+    //checks if 1 bit of pred is on
+    if ((insn & (1 << 27)) != 0)
+    {
+        pred += 'i';
+    }
+    //checks if 2 bit of pred is on
+    if ((insn & (1 << 26)) != 0)
+    {
+        pred += 'o';
+    }
+    //checks if 3 bit of pred is on
+    if ((insn & (1 << 25)) != 0)
+    {
+        pred += 'r';
+    }
+    //checks if 4 bit of pred is on
+    if ((insn & (1 << 24)) != 0)
+    {
+        pred += 'w';
+    }
+    //checks if 1 bit of succesor is on
+    if ((insn & (1 << 23)) != 0)
+    {
+        succ += 'i';
+    }
+    //checks if 2 bit of succesor is on
+    if ((insn & (1 << 22)) != 0)
+    {
+        succ += 'o';
+    }
+    //checks if 3 bit of succesor is on
+    if ((insn & (1 << 21)) != 0)
+    {
+        succ += 'r';
+    }
+    //checks if 4 bit of succesor is on
+    if ((insn & (1 << 20)) != 0)
+    {
+        succ += 'w';
+    }
+    os << " fence   " << pred << "," << succ;
+    //std::hex << ((insn & 0xf000000) >> 24)
+
+    return os.str();
+}
+
+std::string rv32i::render_ecall(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " ecall";
+
+    return os.str();
+}
+
+std::string rv32i::render_ebreak(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " ebreak";
+    return os.str();
 }
