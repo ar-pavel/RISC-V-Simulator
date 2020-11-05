@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "rv32i.h"
 #include "hex.h"
+#include "rv32i.h"
 
 //Save the m argument in the mem member variable for use later when disassembling
 rv32i::rv32i(memory *m)
@@ -261,7 +261,7 @@ uint32_t rv32i::get_rs1(uint32_t insn)
 }
 
 // Extract and return the rs2 field from the given instruction
-uint32_t get_rs2(uint32_t insn)
+uint32_t rv32i::get_rs2(uint32_t insn)
 {
     return (insn & 0x1F00000) >> 20;
 }

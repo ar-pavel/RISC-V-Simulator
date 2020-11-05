@@ -1,12 +1,12 @@
 #include <iostream>
-#include "registerfile.cpp"
-#include "hex.cpp"
+// #include "registerfile.cpp"
+// #include "hex.cpp"
 
 int main()
 {
-    registerfile reg;
-    reg.reset();
-    reg.dump();
+    // registerfile reg;
+    // reg.reset();
+    // reg.dump();
     // test commit
     return 0;
 }

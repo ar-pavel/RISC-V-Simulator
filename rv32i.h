@@ -16,6 +16,7 @@ static constexpr uint32_t opcode_rtype = 0b0110011;
 static constexpr uint32_t opcode_load_imm = 0b0000011;
 static constexpr uint32_t opcode_alu_imm = 0b0010011;
 static constexpr uint32_t opcode_fenc_opt = 0b0001111;
+static constexpr uint32_t opcode_exc = 0b1110011;
 
 class rv32i
 {
