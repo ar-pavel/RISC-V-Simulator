@@ -2,165 +2,180 @@
 #include <fstream>
 #include "hex.h"
 #include "memory.h"
-
+/*
+Use: initializes vector to 0xa5
+Parameters: 1. uint32_t siz: used to determined vectors size
+*/
 memory::memory(uint32_t siz)
 {
-    this->size = (siz + 15) & 0xfffffff0; // round the length up, mod-16
+    size = (siz + 15) & 0xfffffff0;
 
-    this->mem = (uint8_t *)malloc(this->size * sizeof(uint8_t));
-
-    for (uint32_t i = 0 - 1; i <= siz; i++)
-    {
-        // initialize every byte the mem array  to 0xa5
-
-        // to do : check which one is appropriate
-
-        // this->mem[i] = 0xa5;
-        *(this->mem + i) = 0xa5;
-    }
+    //resizes vector to size value and sets every element to 0xa5
+    mem.resize(size, 0xa5);
 }
 
+/*
+Use: calls destructor for vector
+Parameters: none
+*/
 memory::~memory()
 {
-    // free  the  memory  that  was  allocated  in  the  constructor
-    free(this->mem);
+    //destructor
+    mem.clear();
 }
 
+/*
+Use: checks if address is valid
+Parameters: 1. uint32_t i: address to be checked
+*/
 bool memory::check_address(uint32_t i) const
 {
-    if (i <= 0 || i >= this->size)
+    //checks if i is less or equal to size
+    if (i < size)
     {
-        // to do : use hex0x32()
-        std::cout << "WARNING: Address out of range: "
-                  << hex0x32(i) << std::endl;
-        return false;
+        return true;
     }
-
-    return true;
+    //print warning if address out of range
+    else
+    {
+        std::cout << "WARNING: Address out of range: " << hex0x32(i) << std::endl;
+        return 0;
+    }
 }
+
+/*
+Use: returns size
+Parameters: none
+*/
 uint32_t memory::get_size() const
 {
-    // Return the (possibly rounded up) size value
-    return (uint32_t)this->size;
+    return size;
 }
 
+/*
+Use: returns value in a given address
+Parameters: 1. uint32_t: used for getting value in a certain address
+
+*/
 uint8_t memory::get8(uint32_t addr) const
 {
-    // return the value in memory if the addr is valid else return 0
-    return (check_address(addr) ? *(this->mem + addr) : (uint8_t)0);
-}
-uint16_t memory::get16(uint32_t addr) const
-{
-    uint8_t first = get8(addr);
-    uint8_t second = get8(addr + 1);
-
-    // merge above two unit8_t values into a unit16_t using litle-endian
-    uint16_t res = ((uint16_t)second << 8) | first;
-
-    return res;
-}
-uint32_t memory::get32(uint32_t addr) const
-{
-    uint16_t first = get16(addr);
-    uint16_t second = get16(addr + 2);
-
-    // merge above two unit16_t values into a unit32_t using litle-endian
-    uint32_t res = ((uint32_t)second << 16) | first;
-
-    return res;
-}
-
-void memory::set8(uint32_t addr, uint8_t val)
-{
-
+    //checks if check address is true
     if (check_address(addr))
     {
-        *(this->mem + addr) = val;
+        return mem[addr];
+    }
+    else
+    {
+        return 0;
     }
 }
+
+/*
+
+
+Use: returns value in a given address (little endiend format)
+Parameters: 1. uint16_t: used for getting value in a certain address
+
+*/
+uint16_t memory::get16(uint32_t addr) const
+{
+    uint16_t sum;
+    //sets sum to the addresses in little endiend format
+    sum = (get8(addr) | get8(addr + 1) << 8);
+    return sum;
+}
+
+/*
+Use: returns value in a given address (little endiend format)
+Parameters: 1. uint32_t: used for getting value in a certain address
+*/
+uint32_t memory::get32(uint32_t addr) const
+{
+    uint32_t sum;
+    //sets sum to the addresses in little endiend format
+    sum = get16(addr) | get16(addr + 2) << 16;
+    return sum;
+}
+
+/*
+Use: sets val to the given address
+Parameters: 1. uint32_t: used to determined the address
+*/
+void memory::set8(uint32_t addr, uint8_t val)
+{
+    //checks if address is valid
+    if (check_address(addr))
+    {
+        mem[addr] = val;
+    }
+}
+
+/*
+Use: sets val to the given address
+Parameters: 1. uint32_t: used to determined the address
+* 			2. uint16_t: value to be stored (little endiend)
+*/
 void memory::set16(uint32_t addr, uint16_t val)
 {
-    set8(addr, (uint8_t)val);
-    set8(addr + 1, (uint8_t)(val >> 8));
+    //shifts value 8 bits address and increments address
+    set8(addr + 1, val >> 8);
+    set8(addr, val);
+    mem[addr] = val;
 }
 
-void memory::set32(uint32_t addr, uint32_t val)
-{
-    set16(addr, (uint16_t)val);
-    set16(addr + 2, (uint16_t)(val >> 16));
-}
+/*
 
+
+Use: sets val to the given address
+Parameters: 1. uint32_t: used to determined the address
+* 			2. unint32_t: value to be stored (little endiend)
+
+*/
 void memory::dump() const
 {
-    uint8_t ascii[17];
-    uint8_t m = 0;
-    for (uint8_t j = 0; j < size; j = j + 16)
+    char ascii[17];
+    ascii[16] = 0;
+    for (uint32_t i = 0; i < size; i++)
     {
-
-        std::cout << hex32(j) << ": ";
-
-        for (uint8_t i = m; i < m + 16 && i < size; i++)
+        if (i % 16 == 0)
         {
-
-            uint8_t ch = get8(i);
-
-            ascii[i % 16] = isprint(ch) ? ch : '.';
-
-            if (i == m + 8)
-            {
-
-                std::cout << "   ";
-            }
-            std::cout << hex8(ch) << " ";
+            if (i != 0)
+                std::cout << " *" << ascii << "*" << std::endl;
+            std::cout << hex32(i) << ":";
         }
-
-        m = m + 16;
-
-        std::cout << "*";
-        for (uint8_t k = 0; k < 16; k++)
-        {
-
-            std::cout << ascii[k % 16];
-        }
-        std::cout << "*" << std::endl;
+        uint8_t ch = get8(i);
+        std::cout << (i % 16 == 8 ? "  " : " ") << hex8(ch);
+        ascii[i % 16] = isprint(ch) ? ch : '.';
     }
+    std::cout << " *" << ascii << "*" << std::endl;
 }
 
 bool memory::load_file(const std::string &fname)
 {
-    bool status = true;
-
+    char temp;
+    int counter = 0;
     std::ifstream infile(fname, std::ios::in | std::ios::binary);
-
-    if (infile.fail())
+    //checks if file exists or can be opened
+    if (!infile)
     {
-        // handle the file opeartion error
-        std::cerr << "Can’t open file ’" << fname << "’ for reading." << std::endl;
-        status = false;
+        std::cout << "Can't open file " << fname << " for reading" << std::endl;
+        return false;
     }
-    else
+    //reads in bit by bit
+    while (infile.get(temp))
     {
-        uint32_t addr = 0;
-
-        uint8_t value;
-
-        while (infile >> value)
+        //checks if address is ok
+        if (check_address(counter))
         {
-            // debug print
-            std::cout << value << std::endl;
-
-            *(this->mem + addr) = value;
-
-            if (addr >= this->size)
-            {
-                std::cerr << "Program too big." << std::endl;
-                status = false;
-                break;
-            }
+            //sets value of temp into vector index (counter)
+            mem[counter] = temp;
         }
-
-        infile.close();
+        else
+        {
+            std::cerr << "Program too big." << std::endl;
+            return false;
+        }
+        counter++;
     }
-
-    return status;
+    return true;
 }

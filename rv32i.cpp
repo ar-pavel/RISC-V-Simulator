@@ -31,7 +31,7 @@ void rv32i::disasm(void)
         std::string decoded_insn = decode(insn);
 
         // print the decoded instruction string returned from decode()
-        std::cout << decoded_insn << " ";
+        std::cout << decoded_insn << "\n";
         // increment pc by 4 (point to the next instruction)
     }
 }
