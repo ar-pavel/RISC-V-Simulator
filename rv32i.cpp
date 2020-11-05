@@ -24,7 +24,7 @@ void rv32i::disasm(void)
         uint32_t insn = this->mem->get32(this->pc);
 
         // print the instruction as a 32-bit hex value
-        std::cout << hex32(insn) << " ";
+        // std::cout << hex32(insn) << " ";
 
         // pass the fetched instruction to decode() to decode and render the instruction into a
         // printable std::string
@@ -284,7 +284,7 @@ int32_t rv32i::get_imm_i(uint32_t insn)
 // Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn)
 int32_t rv32i::get_imm_u(uint32_t insn)
 {
-    return (insn & 0xFFFFF0000);
+    return (insn & 0xFFFFF000) >> 12;
 }
 
 // Extract and return the imm_b field from the given instruction
@@ -352,21 +352,56 @@ void rv32i::reset()
     this->halt = false;     // setting 'halt' flag to false
 }
 
+// dump the simulator state
+void rv32i::dump() const
+{
+    this->regs.dump();
+    std::cout << " pc " << hex32(this->pc) << std::endl;
+}
+
 // function to execute an instruction
 void rv32i::tick()
 {
     this->insn_counter++; // increment instruction counter
+
+    // show GP register hart
+    if (this->show_registers)
+        regs.dump();
+
+    // fetch the 32-bit instruction from memory at the address in the pc register
+    uint32_t insn = this->mem->get32(pc);
+
+    // show instructions
+    if (this->show_instructions)
+    {
+        // print the 32-bit hex address in the pc register
+        std::cout << hex32(pc) << ": ";
+
+        // print the instruction as a 32-bit hex value
+        std::cout << hex32(insn) << " ";
+
+        // execute instruction and render instruction and simulation details
+        dcex(insn, &std::cout);
+    }
+    else
+    {
+        // execute instruction without rendering instruction and simulation details
+        dcex(insn, nullptr);
+    }
 }
 
 // function to execute instructions loaded from file
 void rv32i::run(uint64_t limit)
 {
+    // storing memory size to the x2 register
+    this->regs.set(2, this->mem->get_size());
+
     // execute
     while (true)
     {
         if (limit && this->insn_counter >= limit) // if execution limit is reached
         {
-            return;
+            break;
         }
         if (is_halted()) // if the program is halted
         {
@@ -375,8 +410,42 @@ void rv32i::run(uint64_t limit)
 
         tick(); // execute one instruction at a time
     }
+    std::cout << render_total_insn_exec(this->insn_counter) << std::endl;
+}
 
-    std::cout << total_insn_exec(this->insn_counter) << std::endl;
+/*****************************************
+ * Executor functions
+ * **************************************/
+void rv32i::dcex(uint32_t insn, std::ostream *pos)
+{
+    uint32_t opcode = get_opcode(insn);
+    switch (opcode)
+    {
+    default:
+        exec_illegal_insn(insn, pos);
+        return;
+    case opcode_lui:
+        exec_lui(insn, pos);
+        return;
+    case opcode_auipc:
+        exec_auipc(insn, pos);
+        return;
+    }
+}
+
+void rv32i::exec_xxx(uint32_t insn, std::ostream *pos)
+{
+}
+
+void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
+{
+}
+void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
+{
+}
+
+void rv32i::exec_illegal_insn(uint32_t insn, std::ostream *pos)
+{
 }
 
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
@@ -415,6 +484,10 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
     halt = true;
 }
 
+/*****************************************
+ * String render formatting functions
+ * **************************************/
+
 std::string rv32i::render_illegal_insn() const
 {
     std::ostringstream os;
@@ -423,14 +496,13 @@ std::string rv32i::render_illegal_insn() const
 
     return os.str();
 }
+
 std::string rv32i::render_lui(uint32_t insn) const
 {
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-
-    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((get_imm_u(insn) >> 12) & 0x0fffff);
-
+    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << get_imm_u(insn);
     return os.str();
 }
 std::string rv32i::render_auipc(uint32_t insn) const
@@ -438,7 +510,7 @@ std::string rv32i::render_auipc(uint32_t insn) const
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((get_imm_u(insn) >> 12) & 0x0fffff);
+    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << get_imm_u(insn);
 
     return os.str();
 }
@@ -602,9 +674,13 @@ std::string rv32i::render_eror(uint32_t insn) const
     return os.str();
 }
 
-std::string rv32i::total_insn_exec(uint64_t total) const
+std::string rv32i::render_total_insn_exec(uint64_t total) const
 {
     std::ostringstream os;
-    os << this->insn_counter << " instructions executed";
+    os << this->insn_counter;
+    if (total == 1)
+        os << " instruction executed";
+    else
+        os << " instructions executed";
     return os.str();
 }
