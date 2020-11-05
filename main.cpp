@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     bool show_disasm = false;
     bool show_insn = false;
     bool show_regs = false;
-    bool show_mem_dump = false;
+    bool show_dump = false;
 
     while ((opt = getopt(argc, argv, "dil::m::rz")) != -1)
     {
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
             break;
         case 'z':
             // std::cout << " found z at \n";
-            show_mem_dump = true;
+            show_dump = true;
             break;
 
         default:
@@ -67,6 +67,7 @@ int main(int argc, char **argv)
             usage();
         }
     }
+
     // std::cout << " reading instructions from: " << argv[argc - 1] << std::endl;
     // if (3 >= argc)
     //     usage(); // missing filename
@@ -79,6 +80,16 @@ int main(int argc, char **argv)
 
     rv32i sim(&mem);
 
+    // show disassembled instructions
+    // before the simulation begins
+    if (show_disasm)
+        sim.disasm();
+
+    // reset the simulator
+    // set program counter to zero
+    // set General Purpose registers to their default values
+    sim.reset();
+
     // print instructions if option -i is given
     sim.set_show_instructions(show_insn);
 
@@ -88,12 +99,11 @@ int main(int argc, char **argv)
     // run the simulated with fixed limit if -l flag has an argument
     sim.run(execution_limit);
 
-    // disassemble the instructions
-    if (show_disasm)
-        sim.disasm();
-
-    // show memory dump
-    if (show_mem_dump)
+    // show memory dump if -z option is given
+    if (show_dump)
+    {
+        sim.dump();
         mem.dump();
+    }
     return 0;
 }
