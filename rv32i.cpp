@@ -245,40 +245,43 @@ uint32_t rv32i::get_opcode(uint32_t insn)
 uint32_t rv32i::get_rd(uint32_t insn)
 {
     //extracts 6 - 0 bits
-    return (insn & 0xF80);
+    return (insn & 0xF80) >> 7;
 }
 
 // Extract and return the funct3 field from the given instruction
 uint32_t rv32i::get_funct3(uint32_t insn)
 {
-    return (insn & 0x7000);
+    return (insn & 0x7000) >> 12;
 }
 
 // Extract and return the rs1 field from the given instruction
 uint32_t rv32i::get_rs1(uint32_t insn)
 {
-    return (insn & 0xF8000);
+    return (insn & 0xF8000) >> 15;
 }
 
 // Extract and return the rs2 field from the given instruction
 uint32_t get_rs2(uint32_t insn)
 {
-    return (insn & 0x1F00000);
+    return (insn & 0x1F00000) >> 20;
 }
 
 // Extract and return the funct7 field from the given instruction
 uint32_t rv32i::get_funct7(uint32_t insn)
 {
-    return (insn & 0xFE000000);
+    return (insn & 0xFE000000) >> 25;
 }
 
 // Extract and return the imm_i field from the given instruction
 int32_t rv32i::get_imm_i(uint32_t insn)
 {
-    return (insn & 0xFFFF00000);
+    int32_t imm_i = (insn & 0xFFFF00000) >> 20;
+    if (insn & 0x80000000) // sign - extend
+        imm_i |= 0xFFFFF000;
+    return imm_i;
 }
 
-// Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn);
+// Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn)
 int32_t rv32i::get_imm_u(uint32_t insn)
 {
     return (insn & 0xFFFFF0000);
