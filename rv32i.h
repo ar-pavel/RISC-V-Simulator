@@ -11,7 +11,11 @@ static constexpr uint32_t opcode_auipc = 0b0010111;
 static constexpr uint32_t opcode_jal = 0b1101111;
 static constexpr uint32_t opcode_jalr = 0b1100111;
 static constexpr uint32_t opcode_btype = 0b1100011;
+static constexpr uint32_t opcode_stype = 0b0100011;
+static constexpr uint32_t opcode_rtype = 0b0110011;
 static constexpr uint32_t opcode_load_imm = 0b0000011;
+static constexpr uint32_t opcode_alu_imm = 0b0010011;
+static constexpr uint32_t opcode_fenc_opt = 0b0001111;
 
 class rv32i
 {
@@ -106,4 +110,5 @@ public:
     std::string render_fence(uint32_t insn) const;
     std::string render_ecall(uint32_t insn) const;
     std::string render_ebreak(uint32_t insn) const;
+    std::string render_eror(uint32_t insn) const;
 };
