@@ -1,4 +1,5 @@
 main
+rv32i
 *.out
 *.bin
 *.exe
