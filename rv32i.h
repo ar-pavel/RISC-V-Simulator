@@ -88,14 +88,21 @@ public:
     bool is_halted() const;
     void reset();
     void dump() const;
+
+    // function to execute individual instruction
+    void tick();
+
+    // function to loop through instruction set
+    void run(uint64_t limit);
+
+    // Instruction Execution functions
     void dcex(uint32_t insn, std::ostream *);
     void exec_illegal_insn(uint32_t insn, std::ostream *pos);
     void exec_xxx(uint32_t insn, std::ostream *);
-    void tick();
-    void run(uint64_t limit);
-
     void exec_ebreak(uint32_t insn, std::ostream *pos);
     void exec_slt(uint32_t insn, std::ostream *pos);
+    void exec_lui(uint32_t insn, std::ostream *);
+    void exec_auipc(uint32_t insn, std::ostream *);
 
     // String render formatting
     std::string render_illegal_insn() const;
@@ -112,5 +119,5 @@ public:
     std::string render_ecall(uint32_t insn) const;
     std::string render_ebreak(uint32_t insn) const;
     std::string render_eror(uint32_t insn) const;
-    std::string total_insn_exec(uint64_t total) const;
+    std::string render_total_insn_exec(uint64_t total) const;
 };
