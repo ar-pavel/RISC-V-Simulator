@@ -112,4 +112,5 @@ public:
     std::string render_ecall(uint32_t insn) const;
     std::string render_ebreak(uint32_t insn) const;
     std::string render_eror(uint32_t insn) const;
+    std::string total_insn_exec(uint64_t total) const;
 };
