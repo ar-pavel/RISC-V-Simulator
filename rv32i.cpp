@@ -325,6 +325,60 @@ int32_t rv32i::get_imm_j(uint32_t insn)
     return imm_j;
 }
 
+// set instuction display flag
+void rv32i::set_show_instructions(bool b)
+{
+    this->show_instructions = b;
+}
+
+// set register hart display flag
+void rv32i::set_show_registers(bool b)
+{
+    this->show_registers = b;
+}
+
+// check if the program is halted
+bool rv32i::is_halted() const
+{
+    return this->halt;
+}
+
+// reset RISC-V Simulation
+void rv32i::reset()
+{
+    this->regs.reset();     // reset general purpose registers
+    this->pc = 0;           // set program counter to zero
+    this->insn_counter = 0; // set instruction counter to zero
+    this->halt = false;     // setting 'halt' flag to false
+}
+
+// function to execute an instruction
+void rv32i::tick()
+{
+    this->insn_counter++; // increment instruction counter
+}
+
+// function to execute instructions loaded from file
+void rv32i::run(uint64_t limit)
+{
+    // execute
+    while (true)
+    {
+        if (limit && this->insn_counter >= limit) // if execution limit is reached
+        {
+            return;
+        }
+        if (is_halted()) // if the program is halted
+        {
+            return;
+        }
+
+        tick(); // execute one instruction at a time
+    }
+
+    std::cout << total_insn_exec(this->insn_counter) << std::endl;
+}
+
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
 {
     uint32_t rd = get_rd(insn);
@@ -545,5 +599,12 @@ std::string rv32i::render_eror(uint32_t insn) const
 
     os << hex32(insn) << " "; // the instruction hex value
     os << " ERROR ";
+    return os.str();
+}
+
+std::string rv32i::total_insn_exec(uint64_t total) const
+{
+    std::ostringstream os;
+    os << this->insn_counter << " instructions executed";
     return os.str();
 }
