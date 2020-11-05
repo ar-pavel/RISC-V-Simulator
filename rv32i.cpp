@@ -284,7 +284,7 @@ int32_t rv32i::get_imm_i(uint32_t insn)
 // Extract and return the imm_u field from the given instruction static int32_t get_imm_u(uint32_t insn)
 int32_t rv32i::get_imm_u(uint32_t insn)
 {
-    return (insn & 0xFFFFF000) >> 12;
+    return (insn & 0xFFFFF000);
 }
 
 // Extract and return the imm_b field from the given instruction
@@ -416,6 +416,7 @@ void rv32i::run(uint64_t limit)
 /*****************************************
  * Executor functions
  * **************************************/
+
 void rv32i::dcex(uint32_t insn, std::ostream *pos)
 {
     uint32_t opcode = get_opcode(insn);
@@ -424,12 +425,12 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
     default:
         exec_illegal_insn(insn, pos);
         return;
-    case opcode_lui:
-        exec_lui(insn, pos);
-        return;
-    case opcode_auipc:
-        exec_auipc(insn, pos);
-        return;
+        // case opcode_lui:
+        //     exec_lui(insn, pos);
+        //     return;
+        // case opcode_auipc:
+        //     exec_auipc(insn, pos);
+        //     return;
     }
 }
 
@@ -439,13 +440,27 @@ void rv32i::exec_xxx(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
 {
+    // TODO: print render
+
+    // store val to register r
+    uint32_t r = get_rd(insn);
+    int32_t val = get_imm_u(insn);
+    this->regs.set(r, val);
 }
+
 void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
 {
+    // TODO: print render
+
+    // store instruction addr + U-value to register r
+    uint32_t r = get_rd(insn);
+    int32_t val = get_imm_u(insn);
+    this->regs.set(r, val + this->pc);
 }
 
 void rv32i::exec_illegal_insn(uint32_t insn, std::ostream *pos)
 {
+    this->halt = true;
 }
 
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
@@ -502,7 +517,7 @@ std::string rv32i::render_lui(uint32_t insn) const
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << get_imm_u(insn);
+    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << (get_imm_u(insn) >> 12);
     return os.str();
 }
 std::string rv32i::render_auipc(uint32_t insn) const
@@ -510,7 +525,7 @@ std::string rv32i::render_auipc(uint32_t insn) const
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << get_imm_u(insn);
+    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << (get_imm_u(insn) >> 12);
 
     return os.str();
 }
