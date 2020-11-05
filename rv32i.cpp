@@ -41,8 +41,7 @@ void rv32i::disasm(void)
 // the disassembled instruction text. This function will not print anything.
 std::string rv32i::decode(uint32_t insn) const
 {
-    std::string pred;
-    std::string succ;
+
     uint32_t opcode = get_opcode(insn);
 
     switch (opcode)
@@ -59,12 +58,174 @@ std::string rv32i::decode(uint32_t insn) const
     case opcode_jalr:
         return render_jalr(insn);
 
-        // case opcode_btype:
-        //     return render_btype(insn, mnemonic);
+    case opcode_btype:
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            return render_btype(insn, " beq    ");
+        case 0b001:
+            return render_btype(insn, " bne    ");
+
+        case 0b100:
+            return render_btype(insn, " blt    ");
+
+        case 0b101:
+            return render_btype(insn, " bge    ");
+
+        case 0b110:
+            return render_btype(insn, " bltu   ");
+
+        case 0b111:
+            return render_btype(insn, " bgeu   ");
+
+        default:
+            return render_eror(insn);
+        }
+        break;
 
     case opcode_load_imm:
-        /* code */
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            return render_itype_load(insn, " lb     ");
+        case 0b001:
+            return render_itype_load(insn, " lh     ");
+        case 0b010:
+            return render_itype_load(insn, " lw     ");
+        case 0b100:
+            return render_itype_load(insn, " lbu    ");
+        case 0b101:
+            return render_itype_load(insn, " lhu    ");
+        default:
+            return render_eror(insn);
+        }
         break;
+
+    case opcode_alu_imm:
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            return render_itype_alu(insn, " addi   ", get_imm_i(insn));
+
+        case 0b010:
+            return render_itype_alu(insn, " slti   ", get_imm_i(insn));
+
+        case 0b011:
+            return render_itype_alu(insn, " sltiu  ", get_imm_i(insn));
+
+        case 0b100:
+            return render_itype_alu(insn, " xori   ", get_imm_i(insn));
+
+        case 0b110:
+            return render_itype_alu(insn, " ori    ", get_imm_i(insn));
+
+        case 0b111:
+            return render_itype_alu(insn, " andi   ", get_imm_i(insn));
+
+        case 0b001:
+            return render_itype_alu(insn, " slli   ", get_imm_i(insn));
+
+        case 0b101:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                return render_itype_alu(insn, " srli   ", get_imm_i(insn));
+
+            case 0b0100000:
+                return render_itype_alu(insn, " srai   ", get_imm_i(insn));
+
+            default:
+                return render_eror(insn);
+            }
+            break;
+        default:
+            return render_eror(insn);
+        }
+
+        break;
+
+    case opcode_stype: // S - type store instructions
+        //checks get_funct3 value
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            return render_stype(insn, " sb     ");
+
+        case 0b001:
+            return render_stype(insn, " sh     ");
+
+        case 0b010:
+            return render_stype(insn, " sw     ");
+
+        default:
+            return render_eror(insn);
+        }
+
+    case opcode_rtype: // R-type
+        //checks get_funct3 value
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                return render_rtype(insn, " add    ");
+
+            case 0b0100000:
+                return render_rtype(insn, " sub    ");
+
+            default:
+                return render_eror(insn);
+            }
+            break;
+        case 0b001:
+            return render_rtype(insn, " sll    ");
+
+        case 0b010:
+            return render_rtype(insn, " slt    ");
+
+        case 0b011:
+            return render_rtype(insn, " sltu   ");
+
+        case 0b100:
+            return render_rtype(insn, " xor    ");
+
+        case 0b101:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                return render_rtype(insn, " srl    ");
+
+            case 0b0100000:
+                return render_rtype(insn, " sra    ");
+
+            default:
+                return render_eror(insn);
+            }
+            break;
+        case 0b110:
+            return render_rtype(insn, " or     ");
+
+        case 0b111:
+            return render_rtype(insn, " and    ");
+        }
+
+    case opcode_fenc_opt: //fence operation
+        return render_fence(insn);
+
+    case opcode_exc:
+        switch (get_funct7(insn) + get_rs2(insn))
+        {
+        case 0b000000000000:
+            return render_ecall(insn);
+        case 0b000000000001:
+            return render_ebreak(insn);
+        default:
+            return render_eror(insn);
+        }
 
     default:
         return render_illegal_insn();
@@ -191,6 +352,8 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         std::string s = render_ebreak(insn);
         s.resize(instruction_width, ' ');
         *pos << s << "//  HALT";
+        *pos << std::endl;
+        *pos << "Execution terminated by EBREAK instruction";
     }
     halt = true;
 }
@@ -370,5 +533,14 @@ std::string rv32i::render_ebreak(uint32_t insn) const
 
     os << hex32(insn) << " "; // the instruction hex value
     os << " ebreak";
+    return os.str();
+}
+
+std::string rv32i::render_eror(uint32_t insn) const
+{
+    std::ostringstream os;
+
+    os << hex32(insn) << " "; // the instruction hex value
+    os << " ERROR ";
     return os.str();
 }
