@@ -139,13 +139,20 @@ public:
     void exec_lw(uint32_t insn, std::ostream *pos);
     void exec_lbu(uint32_t insn, std::ostream *pos);
     void exec_lhu(uint32_t insn, std::ostream *pos);
+    void exec_ori(uint32_t insn, std::ostream *pos);
+    void exec_slli(uint32_t insn, std::ostream *pos);
+    void exec_slti(uint32_t insn, std::ostream *pos);
+    void exec_sltiu(uint32_t insn, std::ostream *pos);
+    void exec_srai(uint32_t insn, std::ostream *pos);
+    void exec_srli(uint32_t insn, std::ostream *pos);
+    void exec_xori(uint32_t insn, std::ostream *pos);
 
     // S-Type Instructions
     void exec_sb(uint32_t insn, std::ostream *pos);
     void exec_sh(uint32_t insn, std::ostream *pos);
     void exec_sw(uint32_t insn, std::ostream *pos);
 
-    // B=Type Instructions
+    // B-Type Instructions
     void exec_beq(uint32_t insn, std::ostream *pos);
     void exec_bge(uint32_t insn, std::ostream *pos);
     void exec_bgeu(uint32_t insn, std::ostream *pos);

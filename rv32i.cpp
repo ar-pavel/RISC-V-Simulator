@@ -381,7 +381,7 @@ void rv32i::tick()
         std::cout << hex32(insn) << " ";
 
         // execute instruction and render instruction and simulation details
-        // std::ostream *dcex_output;
+        // std::ostream dcex_output;
         // dcex(insn, dcex_output);
 
         // TODO: display dcex_output
@@ -505,36 +505,45 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
         switch (get_funct3(insn))
         {
         case 0b000:
-            exec_itype_alu(insn, " addi   ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " addi   ", get_imm_i(insn), pos);
+            exec_addi(insn, pos);
             break;
 
         case 0b010:
-            exec_itype_alu(insn, " slti   ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " slti   ", get_imm_i(insn), pos);
+            exec_slti(insn, pos);
             break;
         case 0b011:
-            exec_itype_alu(insn, " sltiu  ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " sltiu  ", get_imm_i(insn), pos);
+            exec_sltiu(insn, pos);
             break;
         case 0b100:
-            exec_itype_alu(insn, " xori   ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " xori   ", get_imm_i(insn), pos);
+            exec_xori(insn, pos);
             break;
         case 0b110:
-            exec_itype_alu(insn, " ori    ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " ori    ", get_imm_i(insn), pos);
+            exec_ori(insn, pos);
             break;
         case 0b111:
-            exec_itype_alu(insn, " andi   ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " andi   ", get_imm_i(insn), pos);
+            exec_andi(insn, pos);
             break;
         case 0b001:
-            exec_itype_alu(insn, " slli   ", get_imm_i(insn), pos);
+            // exec_itype_alu(insn, " slli   ", get_imm_i(insn), pos);
+            exec_slli(insn, pos);
             break;
         case 0b101:
             //checks get_funct7 value
             switch (get_funct7(insn))
             {
             case 0b0000000:
-                exec_itype_alu(insn, " srli   ", get_imm_i(insn), pos);
+                // exec_itype_alu(insn, " srli   ", get_imm_i(insn), pos);
+                exec_srli(insn, pos);
                 break;
             case 0b0100000:
-                exec_itype_alu(insn, " srai   ", get_imm_i(insn), pos);
+                // exec_itype_alu(insn, " srai   ", get_imm_i(insn), pos);
+                exec_srai(insn, pos);
                 break;
             default:
                 exec_eror(insn, pos);
@@ -553,13 +562,16 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
         switch (get_funct3(insn))
         {
         case 0b000:
-            exec_stype(insn, " sb     ", pos);
+            // exec_stype(insn, " sb     ", pos);
+            exec_sb(insn, pos);
             break;
         case 0b001:
-            exec_stype(insn, " sh     ", pos);
+            // exec_stype(insn, " sh     ", pos);
+            exec_sh(insn, pos);
             break;
         case 0b010:
-            exec_stype(insn, " sw     ", pos);
+            // exec_stype(insn, " sw     ", pos);
+            exec_sw(insn, pos);
             break;
         default:
             exec_eror(insn, pos);
@@ -575,10 +587,12 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             switch (get_funct7(insn))
             {
             case 0b0000000:
-                exec_rtype(insn, " add    ", pos);
+                // exec_rtype(insn, " add    ", pos);
+                exec_add(insn, pos);
                 break;
             case 0b0100000:
-                exec_rtype(insn, " sub    ", pos);
+                // exec_rtype(insn, " sub    ", pos);
+                exec_sub(insn, pos);
                 break;
             default:
                 exec_eror(insn, pos);
@@ -586,26 +600,32 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             }
             break;
         case 0b001:
-            exec_rtype(insn, " sll    ", pos);
+            // exec_rtype(insn, " sll    ", pos);
+            exec_sll(insn, pos);
             break;
         case 0b010:
-            exec_rtype(insn, " slt    ", pos);
+            // exec_rtype(insn, " slt    ", pos);
+            exec_slt(insn, pos);
             break;
         case 0b011:
-            exec_rtype(insn, " sltu   ", pos);
+            // exec_rtype(insn, " sltu   ", pos);
+            exec_sltu(insn, pos);
             break;
         case 0b100:
-            exec_rtype(insn, " xor    ", pos);
+            // exec_rtype(insn, " xor    ", pos);
+            exec_xor(insn, pos);
             break;
         case 0b101:
             //checks get_funct7 value
             switch (get_funct7(insn))
             {
             case 0b0000000:
-                exec_rtype(insn, " srl    ", pos);
+                // exec_rtype(insn, " srl    ", pos);
+                exec_srl(insn, pos);
                 break;
             case 0b0100000:
-                exec_rtype(insn, " sra    ", pos);
+                // exec_rtype(insn, " sra    ", pos);
+                exec_sra(insn, pos);
                 break;
             default:
                 exec_eror(insn, pos);
@@ -613,10 +633,12 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             }
             break;
         case 0b110:
-            exec_rtype(insn, " or     ", pos);
+            // exec_rtype(insn, " or     ", pos);
+            exec_or(insn, pos);
             break;
         case 0b111:
-            exec_rtype(insn, " and    ", pos);
+            // exec_rtype(insn, " and    ", pos);
+            exec_and(insn, pos);
             break;
         }
 
@@ -911,6 +933,84 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+}
+
+void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    int32_t res = (rs1 | imm_i);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
+}
+void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+
+    // 5 LSB of imm_i is shamt_i
+    int32_t shamt_i = (imm_i & 0x1F);
+
+    int32_t res = (rs1 << shamt_i);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
+}
+void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
+}
+void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t imm_i = get_imm_i(insn);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
+}
+void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+
+    // 5 LSB of imm_i is shamt_i
+    int32_t shamt_i = (imm_i & 0x1F);
+
+    // arithmetic shift right
+    int32_t data = (rs1 >> shamt_i);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+
+    // 5 LSB of imm_i is shamt_i
+    int32_t shamt_i = (imm_i & 0x1F);
+
+    // logical shift right
+    int32_t data = (rs1 >> shamt_i);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+
+    // xor
+    int32_t res = (rs1 ^ imm_i);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
 }
 
 /*****************************************
