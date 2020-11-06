@@ -847,11 +847,10 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
     uint32_t res = (rs1 << (rs2 & 0x1F));
 
     uint32_t reg = get_rd(insn);
-    this->regs.set(reg, res);
 
     if (pos)
     {
-        std::string s = render_rtype(insn, "sll     ");
+        std::string s = render_rtype(insn, " sll     ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
         *pos << s << "// "
@@ -864,6 +863,8 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
         *pos << std::endl;
     }
 
+    this->regs.set(reg, res);
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -871,12 +872,12 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
 {
     uint32_t rd = get_rd(insn);
-    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
-    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
-    int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
+    int32_t rs1 = (int32_t)this->regs.get(get_rs1(insn));
+    int32_t rs2 = (int32_t)this->regs.get(get_rs2(insn));
+    int32_t val = (rs1 < rs2) ? 1 : 0;
     if (pos)
     {
-        std::string s = render_rtype(insn, "slt     ");
+        std::string s = render_rtype(insn, " slt     ");
         s.resize(instruction_width, ' ');
         // slt x4,x14,x15 // x4 = (0xf0f0f0f0 < 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "// "
@@ -888,7 +889,7 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
              << hex0x32(val);
         *pos << std::endl;
     }
-    regs.set(rd, val);
+    this->regs.set(rd, val);
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -900,12 +901,12 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
     uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
 
     uint32_t reg = get_rd(insn);
-    int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
+    int32_t val = (rs1 < rs2) ? 1 : 0;
 
     // this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
     if (pos)
     {
-        std::string s = render_rtype(insn, "sltu     ");
+        std::string s = render_rtype(insn, " sltu     ");
         s.resize(instruction_width, ' ');
         // 000000cc: 00f73233 sltu x4,x14,x15 // x4 = (0xf0f0f0f0 <U 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "// "
@@ -937,7 +938,7 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, "sra     ");
+        std::string s = render_rtype(insn, " sra     ");
         s.resize(instruction_width, ' ');
         // 000000d8: 40f751b3 sra x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0xfffff0f0
         *pos << s << "// "
