@@ -381,7 +381,10 @@ void rv32i::tick()
         std::cout << hex32(insn) << " ";
 
         // execute instruction and render instruction and simulation details
-        dcex(insn, &std::cout);
+        std::ostream *dcex_output;
+        dcex(insn, dcex_output);
+
+        // TODO: display dcex_output
     }
     else
     {
