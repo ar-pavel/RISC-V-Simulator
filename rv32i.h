@@ -102,11 +102,11 @@ public:
     void dcex(uint32_t insn, std::ostream *);
     void exec_illegal_insn(uint32_t insn, std::ostream *pos);
     void exec_ebreak(uint32_t insn, std::ostream *pos);
-    void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos);
-    void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos);
-    void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos);
-    void exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos);
-    void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    // void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    // void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    // void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    // void exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos);
+    // void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos);
     void exec_fence(uint32_t insn, std::ostream *pos);
     void exec_ecall(uint32_t insn, std::ostream *pos);
     void exec_error(uint32_t insn, std::ostream *pos);

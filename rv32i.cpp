@@ -369,7 +369,7 @@ void rv32i::tick()
 
     // show GP register hart
     if (this->show_registers)
-        regs.dump();
+        dump();
 
     // fetch the 32-bit instruction from memory at the address in the pc register
     uint32_t insn = this->mem->get32(pc);
@@ -408,7 +408,7 @@ void rv32i::run(uint64_t limit)
         }
         if (is_halted()) // if the program is halted
         {
-            return;
+            break;
         }
 
         tick(); // execute one instruction at a time
@@ -685,7 +685,7 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         *pos << "Execution terminated by EBREAK instruction";
         *pos << std::endl;
     }
-    halt = true;
+    this->halt = true;
 }
 
 /*****************************************
@@ -968,7 +968,7 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, "srl     ");
+        std::string s = render_rtype(insn, " srl     ");
         s.resize(instruction_width, ' ');
         // 000000d4: 00f751b3 srl x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0x0000f0f0
         *pos << s << "// "
@@ -1021,7 +1021,7 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
     this->regs.set(reg, res);
     if (pos)
     {
-        std::string s = render_rtype(insn, "xor     ");
+        std::string s = render_rtype(insn, " xor     ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
         *pos << s << "// "
@@ -1684,23 +1684,32 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 
 // Instruction Executions Done
 
-void rv32i::exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void rv32i::exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void rv32i::exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void rv32i::exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos)
-{
-}
-void rv32i::exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
+// void rv32i::exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+// {
+// }
+// void rv32i::exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos)
+// {
+// }
+// void rv32i::exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+// {
+// }
+// void rv32i::exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos)
+// {
+// }
+// void rv32i::exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+// {
+// }
 void rv32i::exec_fence(uint32_t insn, std::ostream *pos)
 {
+    if (pos)
+    {
+        std::string s = render_fence(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  fence";
+        *pos << std::endl;
+    }
+    // increment pc
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_ecall(uint32_t insn, std::ostream *pos)
 {
@@ -1708,6 +1717,8 @@ void rv32i::exec_ecall(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_error(uint32_t insn, std::ostream *pos)
 {
+    std::cout << "ERROR OCCURRED!!!" << std::endl;
+    this->halt = true;
 }
 
 /*****************************************
