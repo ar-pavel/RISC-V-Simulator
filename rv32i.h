@@ -101,11 +101,22 @@ public:
     // Instruction Execution functions
     void dcex(uint32_t insn, std::ostream *);
     void exec_illegal_insn(uint32_t insn, std::ostream *pos);
-    void exec_xxx(uint32_t insn, std::ostream *);
     void exec_ebreak(uint32_t insn, std::ostream *pos);
     void exec_slt(uint32_t insn, std::ostream *pos);
-    void exec_lui(uint32_t insn, std::ostream *);
-    void exec_auipc(uint32_t insn, std::ostream *);
+
+    void exec_lui(uint32_t insn, std::ostream *pos);
+    void exec_auipc(uint32_t insn, std::ostream *pos);
+    void exec_jal(uint32_t insn, std::ostream *pos);
+    void exec_jalr(uint32_t insn, std::ostream *pos);
+    void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    void exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos);
+    void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos);
+    void exec_fence(uint32_t insn, std::ostream *pos);
+    void exec_ecall(uint32_t insn, std::ostream *pos);
+    void exec_ebreak(uint32_t insn, std::ostream *pos);
+    void exec_eror(uint32_t insn, std::ostream *pos);
 
     // String render formatting
     std::string render_illegal_insn() const;

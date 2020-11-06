@@ -419,21 +419,218 @@ void rv32i::run(uint64_t limit)
 
 void rv32i::dcex(uint32_t insn, std::ostream *pos)
 {
+
     uint32_t opcode = get_opcode(insn);
+
     switch (opcode)
     {
+    case opcode_lui:
+        exec_lui(insn, pos);
+        break;
+    case opcode_auipc:
+        exec_auipc(insn, pos);
+        break;
+    case opcode_jal:
+        exec_jal(insn, pos);
+        break;
+    case opcode_jalr:
+        exec_jalr(insn, pos);
+        break;
+    case opcode_btype:
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            exec_btype(insn, " beq    ", pos);
+            break;
+        case 0b001:
+            exec_btype(insn, " bne    ", pos);
+            break;
+        case 0b100:
+            exec_btype(insn, " blt    ", pos);
+            break;
+        case 0b101:
+            exec_btype(insn, " bge    ", pos);
+            break;
+        case 0b110:
+            exec_btype(insn, " bltu   ", pos);
+            break;
+        case 0b111:
+            exec_btype(insn, " bgeu   ", pos);
+            break;
+        default:
+            exec_eror(insn, pos);
+            break;
+        }
+        break;
+
+    case opcode_load_imm:
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            exec_itype_load(insn, " lb     ", pos);
+            break;
+        case 0b001:
+            exec_itype_load(insn, " lh     ", pos);
+            break;
+        case 0b010:
+            exec_itype_load(insn, " lw     ", pos);
+            break;
+        case 0b100:
+            exec_itype_load(insn, " lbu    ", pos);
+            break;
+        case 0b101:
+            exec_itype_load(insn, " lhu    ", pos);
+            break;
+        default:
+            exec_eror(insn, pos);
+            break;
+        }
+        break;
+
+    case opcode_alu_imm:
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            exec_itype_alu(insn, " addi   ", get_imm_i(insn), pos);
+            break;
+
+        case 0b010:
+            exec_itype_alu(insn, " slti   ", get_imm_i(insn), pos);
+            break;
+        case 0b011:
+            exec_itype_alu(insn, " sltiu  ", get_imm_i(insn), pos);
+            break;
+        case 0b100:
+            exec_itype_alu(insn, " xori   ", get_imm_i(insn), pos);
+            break;
+        case 0b110:
+            exec_itype_alu(insn, " ori    ", get_imm_i(insn), pos);
+            break;
+        case 0b111:
+            exec_itype_alu(insn, " andi   ", get_imm_i(insn), pos);
+            break;
+        case 0b001:
+            exec_itype_alu(insn, " slli   ", get_imm_i(insn), pos);
+            break;
+        case 0b101:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                exec_itype_alu(insn, " srli   ", get_imm_i(insn), pos);
+                break;
+            case 0b0100000:
+                exec_itype_alu(insn, " srai   ", get_imm_i(insn), pos);
+                break;
+            default:
+                exec_eror(insn, pos);
+                break;
+            }
+            break;
+        default:
+            exec_eror(insn, pos);
+            break;
+        }
+
+        break;
+
+    case opcode_stype: // S - type store instructions
+        //checks get_funct3 value
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            exec_stype(insn, " sb     ", pos);
+            break;
+        case 0b001:
+            exec_stype(insn, " sh     ", pos);
+            break;
+        case 0b010:
+            exec_stype(insn, " sw     ", pos);
+            break;
+        default:
+            exec_eror(insn, pos);
+            break;
+        }
+
+    case opcode_rtype: // R-type
+        //checks get_funct3 value
+        switch (get_funct3(insn))
+        {
+        case 0b000:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                exec_rtype(insn, " add    ", pos);
+                break;
+            case 0b0100000:
+                exec_rtype(insn, " sub    ", pos);
+                break;
+            default:
+                exec_eror(insn, pos);
+                break;
+            }
+            break;
+        case 0b001:
+            exec_rtype(insn, " sll    ", pos);
+            break;
+        case 0b010:
+            exec_rtype(insn, " slt    ", pos);
+            break;
+        case 0b011:
+            exec_rtype(insn, " sltu   ", pos);
+            break;
+        case 0b100:
+            exec_rtype(insn, " xor    ", pos);
+            break;
+        case 0b101:
+            //checks get_funct7 value
+            switch (get_funct7(insn))
+            {
+            case 0b0000000:
+                exec_rtype(insn, " srl    ", pos);
+                break;
+            case 0b0100000:
+                exec_rtype(insn, " sra    ", pos);
+                break;
+            default:
+                exec_eror(insn, pos);
+                break;
+            }
+            break;
+        case 0b110:
+            exec_rtype(insn, " or     ", pos);
+            break;
+        case 0b111:
+            exec_rtype(insn, " and    ", pos);
+            break;
+        }
+
+    case opcode_fenc_opt: //fence operation
+        exec_fence(insn, pos);
+        break;
+
+    case opcode_exc:
+        switch (get_funct7(insn) + get_rs2(insn))
+        {
+        case 0b000000000000:
+            exec_ecall(insn, pos);
+            break;
+        case 0b000000000001:
+            exec_ebreak(insn, pos);
+            break;
+        default:
+            exec_eror(insn, pos);
+            break;
+        }
+
     default:
         exec_illegal_insn(insn, pos);
-        return;
-        // case opcode_lui:
-        //     exec_lui(insn, pos);
-        //     return;
-        // case opcode_auipc:
-        //     exec_auipc(insn, pos);
-        //     return;
+        break;
     }
 }
-
+//--------------------------------------------------------//
+/*
 void rv32i::exec_xxx(uint32_t insn, std::ostream *pos)
 {
 }
@@ -448,6 +645,7 @@ void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
     this->regs.set(r, val);
 }
 
+
 void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
 {
     // TODO: print render
@@ -457,6 +655,9 @@ void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
     int32_t val = get_imm_u(insn);
     this->regs.set(r, val + this->pc);
 }
+
+*/
+//-------------------------------------------------------//
 
 void rv32i::exec_illegal_insn(uint32_t insn, std::ostream *pos)
 {
@@ -497,6 +698,58 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         *pos << "Execution terminated by EBREAK instruction";
     }
     halt = true;
+}
+
+/*****************************************
+ * Instructions executing functions
+ * **************************************/
+
+void exec_lui(uint32_t insn, std::ostream *pos)
+{
+    /*
+    if (pos)
+    {
+        std::string s = render_lui(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  HALT";
+        *pos << std::endl;
+        *pos << "Execution terminated by EBREAK instruction";
+    }
+    */
+}
+void exec_auipc(uint32_t insn, std::ostream *pos)
+{
+}
+void exec_jal(uint32_t insn, std::ostream *pos)
+{
+}
+void exec_jalr(uint32_t insn, std::ostream *pos)
+{
+}
+void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos)
+{
+}
+void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void exec_fence(uint32_t insn, std::ostream *pos)
+{
+}
+void exec_ecall(uint32_t insn, std::ostream *pos)
+{
+}
+
+void exec_eror(uint32_t insn, std::ostream *pos)
+{
 }
 
 /*****************************************
