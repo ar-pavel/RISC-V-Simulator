@@ -1,3 +1,6 @@
+#ifndef registerfile_H
+#define registerfile_H
+
 #include <cstdint>
 
 class registerfile
@@ -22,3 +25,4 @@ public:
      * **/
     void dump() const;
 };
+#endif // registerfile_H

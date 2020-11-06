@@ -1,3 +1,6 @@
+#ifndef rv32i_H
+#define rv32i_H
+
 #include <cstdint>
 #include <string>
 #include "memory.h"
@@ -121,3 +124,5 @@ public:
     std::string render_eror(uint32_t insn) const;
     std::string render_total_insn_exec(uint64_t total) const;
 };
+
+#endif // rv32i_H
