@@ -762,6 +762,20 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
     int32_t sum = rs1 + rs2;
     this->regs.set(reg, sum);
 
+    if (pos)
+    {
+        std::string s = render_rtype(insn, " add     ");
+        s.resize(instruction_width, ' ');
+        // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 + 0xf0f0f0f0 = 0xf0f0f0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " + "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(sum);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -773,6 +787,19 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t res = (rs1 & rs2);
     this->regs.set(reg, res);
+    if (pos)
+    {
+        std::string s = render_rtype(insn, " and     ");
+        s.resize(instruction_width, ' ');
+        // 000000dc: 00f76233 or x4,x14,x15 // x4 = 0xf0f0f0f0 | 0xf0f0f0f0 = 0xf0f0f0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " | "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -786,6 +813,20 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
     int32_t res = (rs1 | rs2);
     this->regs.set(reg, res);
 
+    if (pos)
+    {
+        std::string s = render_rtype(insn, " or     ");
+        s.resize(instruction_width, ' ');
+        // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 & 0xf0f0f0f0 = 0xf0f0f0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " & "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -798,6 +839,20 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "sll     ");
+        s.resize(instruction_width, ' ');
+        // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " << "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -815,7 +870,7 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
         s.resize(instruction_width, ' ');
         // slt x4,x14,x15 // x4 = (0xf0f0f0f0 < 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "// "
-             << "x4 = ("
+             << "x" << rd << " = ("
              << hex0x32(rs1)
              << " < "
              << hex0x32(rs2)
@@ -834,11 +889,28 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
     uint32_t rs2 = get_rs2(insn);
 
     uint32_t reg = get_rd(insn);
-    this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
+    int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
+
+    // this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "sltu     ");
+        s.resize(instruction_width, ' ');
+        // 000000cc: 00f73233 sltu x4,x14,x15 // x4 = (0xf0f0f0f0 <U 0xf0f0f0f0) ? 1 : 0 = 0x00000000
+        *pos << s << "// "
+             << "x" << rd << " = ("
+             << hex0x32(rs1)
+             << " <U "
+             << hex0x32(rs2)
+             << " ? 1 : 0 = "
+             << hex0x32(val);
+    }
+    regs.set(reg, val);
 
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 {
     // signed data type for arithmetic shift
@@ -851,9 +923,24 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
 
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "sra     ");
+        s.resize(instruction_width, ' ');
+        // 000000d8: 40f751b3 sra x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0xfffff0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " >> "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
@@ -864,6 +951,20 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "srl     ");
+        s.resize(instruction_width, ' ');
+        // 000000d4: 00f751b3 srl x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0x0000f0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " >> "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -877,6 +978,20 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
     int32_t sub = rs1 - rs2;
     this->regs.set(reg, sub);
 
+    if (pos)
+    {
+        std::string s = render_rtype(insn, " sub     ");
+        s.resize(instruction_width, ' ');
+        // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 & 0xf0f0f0f0 = 0xf0f0f0f0
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " - "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(sub);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -886,8 +1001,21 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     int32_t rs1 = get_rs1(insn);
     int32_t rs2 = get_rs2(insn);
-    int32_t sub = rs1 - rs2;
-    this->regs.set(reg, sub);
+    int32_t res = (rs1 ^ rs2);
+    this->regs.set(reg, res);
+    if (pos)
+    {
+        std::string s = render_rtype(insn, "xor     ");
+        s.resize(instruction_width, ' ');
+        // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " ^ "
+             << hex0x32(rs2)
+             << " = "
+             << hex0x32(res);
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -1119,9 +1247,24 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " ori     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000a8: 4d266213 ori x4,x12,1234 // x4 = 0xf0f0f0f0 | 0x000004d2 = 0xf0f0f4f2
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " | "
+             << hex0x32(imm_i)
+             << " = "
+             << hex0x32(res);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
@@ -1135,9 +1278,24 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " slli     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000b0: 00c69213 slli x4,x13,12 // x4 = 0xf0f0f0f0 << 12 = 0x0f0f0000
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " << "
+             << hex0x32(imm_i)
+             << " = "
+             << hex0x32(res);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 {
     int32_t rs1 = get_rs1(insn);
@@ -1146,9 +1304,24 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " slti     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 0000009c: 4d262213 slti x4,x12,1234 // x4 = (0xf0f0f0f0 < 1234) ? 1 : 0 = 0x00000001
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = ("
+             << hex0x32(rs1)
+             << " <U "
+             << hex0x32(imm_i)
+             << ") ? 1 : 0 = "
+             << hex0x32((rs1 < imm_i) ? 1 : 0);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
@@ -1157,9 +1330,24 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " sltiu     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000a0: 4d263213 sltiu x4,x12,1234 // x4 = (0xf0f0f0f0 <U 1234) ? 1 : 0 = 0x00000000
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = ("
+             << hex0x32(rs1)
+             << " <U "
+             << hex0x32(imm_i)
+             << ") ? 1 : 0 = "
+             << hex0x32((rs1 < imm_i) ? 1 : 0);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 {
     int32_t rs1 = get_rs1(insn);
@@ -1174,9 +1362,24 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " srai     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000b8: 40c6d213 srai x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0xffff0f0f
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " >> "
+             << hex0x32(imm_i)
+             << " = "
+             << hex0x32(data);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
@@ -1191,9 +1394,24 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
 
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " srli     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000b4: 00c6d213 srli x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0x000f0f0f
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " >> "
+             << hex0x32(imm_i)
+             << " = "
+             << hex0x32(data);
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
+
 void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
@@ -1204,6 +1422,20 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    if (pos)
+    {
+        std::string s = render_itype_alu(insn, " srli     ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        // 000000a4: 4d264213 xori x4,x12,1234 // x4 = 0xf0f0f0f0 ^ 0x000004d2 = 0xf0f0f422
+        *pos << s << "// "
+             << "x" << get_rd(insn) << " = "
+             << hex0x32(rs1)
+             << " ^ "
+             << hex0x32(imm_i)
+             << " = "
+             << hex0x32(res);
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
