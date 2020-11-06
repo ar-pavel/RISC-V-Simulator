@@ -382,7 +382,7 @@ void rv32i::tick()
 
         // execute instruction and render instruction and simulation details
         // std::ostream dcex_output;
-        // dcex(insn, dcex_output);
+        dcex(insn, &std::cout);
 
         // TODO: display dcex_output
     }
@@ -704,6 +704,8 @@ void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     int32_t val = get_imm_u(insn);
     this->regs.set(reg, val);
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
 {
@@ -711,6 +713,9 @@ void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     int32_t val = get_imm_u(insn);
     this->regs.set(reg, val + this->pc);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 /*****************************************
@@ -722,6 +727,8 @@ void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
     uint32_t nxt_insn = this->pc + 4;
     this->regs.set(reg, nxt_insn);
     uint32_t imm_j = get_imm_j(insn);
+
+    // jump to
     this->pc = this->pc + imm_j;
 }
 
@@ -735,6 +742,9 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t sum = rs1 + rs2;
     this->regs.set(reg, sum);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_and(uint32_t insn, std::ostream *pos)
@@ -744,6 +754,9 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t res = (rs1 & rs2);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_or(uint32_t insn, std::ostream *pos)
@@ -753,6 +766,9 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t res = (rs1 | rs2);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
@@ -763,6 +779,9 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
@@ -785,7 +804,9 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
              << hex0x32(val);
     }
     regs.set(rd, val);
-    pc += 4;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
@@ -795,6 +816,9 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 {
@@ -807,6 +831,9 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 {
@@ -818,6 +845,9 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
@@ -827,6 +857,9 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t sub = rs1 - rs2;
     this->regs.set(reg, sub);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
@@ -836,6 +869,9 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
     int32_t rs2 = get_rs2(insn);
     int32_t sub = rs1 - rs2;
     this->regs.set(reg, sub);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 /*****************************************
@@ -848,6 +884,9 @@ void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
     int32_t imm_i = get_imm_i(insn);
     int32_t sum = rs1 + imm_i;
     this->regs.set(reg, sum);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
@@ -857,6 +896,9 @@ void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
     int32_t imm_i = get_imm_i(insn);
     int32_t res = (rs1 & imm_i);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
@@ -867,6 +909,8 @@ void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
 
     uint32_t rs1 = get_rs1(insn);
     uint32_t imm_i = get_imm_i(insn);
+
+    // jump
     this->pc = rs1 + imm_i;
 }
 void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
@@ -884,6 +928,9 @@ void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 {
@@ -898,6 +945,9 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 {
@@ -909,6 +959,9 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
 {
@@ -921,6 +974,9 @@ void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 {
@@ -933,6 +989,9 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
@@ -943,6 +1002,9 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 {
@@ -956,6 +1018,9 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 {
@@ -964,6 +1029,9 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 {
@@ -972,6 +1040,9 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, (rs1 < imm_i) ? 1 : 0);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 {
@@ -986,6 +1057,9 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 {
@@ -1000,6 +1074,9 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 {
@@ -1011,6 +1088,9 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, res);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 /*****************************************
@@ -1023,6 +1103,9 @@ void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
     uint32_t addr = rs1 + imm_s;
     uint8_t data = (uint8_t)get_rs2(insn);
     this->mem->set8(addr, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
 {
@@ -1031,6 +1114,9 @@ void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
     uint32_t addr = rs1 + imm_s;
     uint16_t data = (uint16_t)get_rs2(insn);
     this->mem->set8(addr, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
 {
@@ -1039,6 +1125,9 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
     uint32_t addr = rs1 + imm_s;
     uint32_t data = (uint32_t)get_rs2(insn);
     this->mem->set8(addr, data);
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 /*****************************************
@@ -1051,6 +1140,9 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 == rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
 {
@@ -1059,6 +1151,9 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 >= rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 {
@@ -1067,6 +1162,9 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 >= rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
 {
@@ -1075,6 +1173,9 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 < rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 {
@@ -1083,6 +1184,9 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 < rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 {
@@ -1091,6 +1195,9 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 != rs2)
         this->pc = this->pc + imm_b;
+
+    // increment program counter
+    this->pc = this->pc + 4;
 }
 
 // Instruction Executions Done
