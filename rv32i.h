@@ -109,7 +109,7 @@ public:
     void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos);
     void exec_fence(uint32_t insn, std::ostream *pos);
     void exec_ecall(uint32_t insn, std::ostream *pos);
-    void exec_eror(uint32_t insn, std::ostream *pos);
+    void exec_error(uint32_t insn, std::ostream *pos);
 
     // U-Type Instructions
     void exec_lui(uint32_t insn, std::ostream *pos);

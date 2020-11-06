@@ -467,7 +467,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_bgeu(insn, pos);
             break;
         default:
-            exec_eror(insn, pos);
+            exec_error(insn, pos);
             break;
         }
         break;
@@ -496,7 +496,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_lhu(insn, pos);
             break;
         default:
-            exec_eror(insn, pos);
+            exec_error(insn, pos);
             break;
         }
         break;
@@ -546,12 +546,12 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
                 exec_srai(insn, pos);
                 break;
             default:
-                exec_eror(insn, pos);
+                exec_error(insn, pos);
                 break;
             }
             break;
         default:
-            exec_eror(insn, pos);
+            exec_error(insn, pos);
             break;
         }
 
@@ -574,7 +574,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_sw(insn, pos);
             break;
         default:
-            exec_eror(insn, pos);
+            exec_error(insn, pos);
             break;
         }
         break;
@@ -596,7 +596,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
                 exec_sub(insn, pos);
                 break;
             default:
-                exec_eror(insn, pos);
+                exec_error(insn, pos);
                 break;
             }
             break;
@@ -629,7 +629,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
                 exec_sra(insn, pos);
                 break;
             default:
-                exec_eror(insn, pos);
+                exec_error(insn, pos);
                 break;
             }
             break;
@@ -658,7 +658,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_ebreak(insn, pos);
             break;
         default:
-            exec_eror(insn, pos);
+            exec_error(insn, pos);
             break;
         }
         break;
@@ -1706,7 +1706,7 @@ void rv32i::exec_ecall(uint32_t insn, std::ostream *pos)
 {
 }
 
-void rv32i::exec_eror(uint32_t insn, std::ostream *pos)
+void rv32i::exec_error(uint32_t insn, std::ostream *pos)
 {
 }
 
