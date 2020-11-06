@@ -1644,7 +1644,7 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_btype(insn, " bge    ");
+        std::string s = render_btype(insn, " bltu    ");
         s.resize(instruction_width, ' ');
         // 00000028: fe0066e3 bltu x0,x0,0x14 // pc += (0x00000000 <U 0x00000000 ? 0xffffffec : 4) = 0x0000002c
         *pos << s << "//  ";
