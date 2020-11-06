@@ -378,13 +378,10 @@ void rv32i::tick()
         std::cout << hex32(pc) << ": ";
 
         // print the instruction as a 32-bit hex value
-        std::cout << hex32(insn) << " ";
+        // std::cout << hex32(insn) << " ";
 
         // execute instruction and render instruction and simulation details
-        // std::ostream dcex_output;
         dcex(insn, &std::cout);
-
-        // TODO: display dcex_output
     }
     else
     {
@@ -690,22 +687,23 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
  * **************************************/
 void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
 {
-    /*
-    if (pos)
-    {
-        std::string s = render_lui(insn);
-        s.resize(instruction_width, ' ');
-        *pos << s << "//  HALT";
-        *pos << std::endl;
-        *pos << "Execution terminated by EBREAK instruction";
-    }
-    */
+
     // store val to register reg
     uint32_t reg = get_rd(insn);
     int32_t val = get_imm_u(insn);
     this->regs.set(reg, val);
     // increment program counter
     this->pc = this->pc + 4;
+
+    if (pos)
+    {
+        // 00000000: abcde237 lui x4,0xabcde // x4 = 0xabcde000
+        std::string s = render_lui(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(val);
+        *pos << std::endl;
+    }
 }
 void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
 {
@@ -713,6 +711,16 @@ void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     int32_t val = get_imm_u(insn);
     this->regs.set(reg, val + this->pc);
+
+    if (pos)
+    {
+        // 00000004: abcde217 auipc x4,0xabcde // x4 = 0x00000004 + 0xabcde000 = 0xabcde004
+        std::string s = render_auipc(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(this->pc) << " + " << hex0x32(val) << " = " << hex0x32(val + this->pc);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -727,6 +735,17 @@ void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
     uint32_t nxt_insn = this->pc + 4;
     this->regs.set(reg, nxt_insn);
     uint32_t imm_j = get_imm_j(insn);
+
+    if (pos)
+    {
+        // 00000008: 008000ef jal x1,0x10 // x1 = 0x0000000c, pc = 0x00000008 + 0x00000008 = 0x00000010
+        std::string s = render_jal(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ", pc"
+             << " = " << hex0x32(this->pc) << " + " << hex0x32(this->pc) << " = " << hex0x32(this->pc + this->pc);
+        *pos << std::endl;
+    }
 
     // jump to
     this->pc = this->pc + imm_j;
@@ -885,6 +904,17 @@ void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
     int32_t sum = rs1 + imm_i;
     this->regs.set(reg, sum);
 
+    if (pos)
+    {
+        // 00000060: 01000313 addi x6,x0,16 // x6 = 0x00000000 + 0x00000010 = 0x00000010
+
+        std::string s = render_itype_alu(insn, " addi   ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(rs1) << " + " << hex0x32(imm_i) << " = " << hex0x32(sum);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -897,6 +927,16 @@ void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
     int32_t res = (rs1 & imm_i);
     this->regs.set(reg, res);
 
+    if (pos)
+    {
+        //  000000ac: 4d267213 andi x4,x12,1234 // x4 = 0xf0f0f0f0 & 0x000004d2 = 0x000000d0
+
+        std::string s = render_itype_alu(insn, " andi   ", get_imm_i(insn));
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(rs1) << " & " << hex0x32(imm_i) << " = " << hex0x32(sum);
+        *pos << std::endl;
+    }
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -909,6 +949,23 @@ void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
 
     uint32_t rs1 = get_rs1(insn);
     uint32_t imm_i = get_imm_i(insn);
+
+    if (pos)
+    {
+        // 00000010: 01008267 jalr x4,16(x1) // x4 = 0x00000014,
+        //pc = (0x00000010 + 0x0000000c) & 0xfffffffe = 0x0000001c
+
+        // TODO: find out  0x0000000c
+
+        std::string s = render_jalr(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ", pc"
+             << " = (" << hex0x32(imm_i) << " + " << hex0x32(rs1) << ") & "
+             << "0xfffffffe"
+             << " = " << hex0x32(nxt_insn);
+        *pos << std::endl;
+    }
 
     // jump
     this->pc = rs1 + imm_i;
@@ -929,6 +986,18 @@ void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
 
+    if (pos)
+    {
+
+        std::string s = render_itype_load(insn, " lb   ");
+        // 00000074: 01030203 lb x4,16(x6) // x4 = sx(m8(0x00000010 + 0x00000010)) = 0xffffffe3
+
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = sx(m8(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -946,6 +1015,18 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
 
+    if (pos)
+    {
+
+        std::string s = render_itype_load(insn, " lh   ");
+
+        // 0000007c: 01031203 lh x4,16(x6) // x4 = sx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = sx(m16(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -959,6 +1040,17 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    if (pos)
+    {
+
+        std::string s = render_itype_load(insn, " lw   ");
+
+        // 00000084: 01032203 lw x4,16(x6) // x4 = sx(m32(0x00000010 + 0x00000010)) = 0xfe004ae3        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = sx(m32(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -975,6 +1067,18 @@ void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
 
+    if (pos)
+    {
+
+        std::string s = render_itype_load(insn, " lbu   ");
+        // 00000064: 01034203 lbu x4,16(x6) // x4 = zx(m8(0x00000010 + 0x00000010)) = 0x000000e3
+
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = zx(m8(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -989,6 +1093,18 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 
     uint32_t reg = get_rd(insn);
     this->regs.set(reg, data);
+
+    if (pos)
+    {
+
+        std::string s = render_itype_load(insn, " lhu   ");
+
+        // 0000006c: 01035203 lhu x4,16(x6) // x4 = zx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "x" << reg << " = zx(m16(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -1104,6 +1220,18 @@ void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
     uint8_t data = (uint8_t)get_rs2(insn);
     this->mem->set8(addr, data);
 
+    if (pos)
+    {
+
+        std::string s = render_stype(insn, " sb     ");
+        // 0000008c: 0e500ea3 sb x5,253(x0) // m8(0x00000000 + 0x000000fd) = 0x000000ff
+
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "m8(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -1115,6 +1243,17 @@ void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
     uint16_t data = (uint16_t)get_rs2(insn);
     this->mem->set8(addr, data);
 
+    if (pos)
+    {
+
+        std::string s = render_stype(insn, " sh     ");
+        // 00000090: 0e501823 sh x5,240(x0) // m16(0x00000000 + 0x000000f0) = 0x0000ffff
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "m16(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -1125,6 +1264,17 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
     uint32_t addr = rs1 + imm_s;
     uint32_t data = (uint32_t)get_rs2(insn);
     this->mem->set8(addr, data);
+
+    if (pos)
+    {
+
+        std::string s = render_stype(insn, " sh     ");
+        // 00000094: 0e502a23 sw x5,244(x0) // m32(0x00000000 + 0x000000f4) = 0xffffffff
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  ";
+        *pos << "m32(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -1141,6 +1291,20 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
     if (rs1 == rs2)
         this->pc = this->pc + imm_b;
 
+    if (pos)
+    {
+        std::string s = render_btype(insn, " beq    ");
+        s.resize(instruction_width, ' ');
+        // 00000030: 00000463 beq x0,x0,0x38 // pc += (0x00000000 == 0x00000000 ? 0x00000008 : 4) = 0x00000038
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " == " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -1151,6 +1315,21 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 >= rs2)
         this->pc = this->pc + imm_b;
+
+    if (pos)
+    {
+        std::string s = render_btype(insn, " bge    ");
+        s.resize(instruction_width, ' ');
+        // 00000024: fe0558e3 bge x10,x0,0x14 //
+        // pc += (0xf0f0f0f0 >= 0x00000000 ? 0xfffffff0 : 4) = 0x00000028
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " >= " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -1163,6 +1342,20 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
     if (rs1 >= rs2)
         this->pc = this->pc + imm_b;
 
+    if (pos)
+    {
+        std::string s = render_btype(insn, " bgeu    ");
+        s.resize(instruction_width, ' ');
+        // 0000002c: fea074e3 bgeu x0,x10,0x14 // pc += (0x00000000 >=U 0xf0f0f0f0 ? 0xffffffe8 : 4) = 0x00000030
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " >=U " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -1173,6 +1366,21 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 < rs2)
         this->pc = this->pc + imm_b;
+
+    if (pos)
+    {
+        std::string s = render_btype(insn, " blt    ");
+        s.resize(instruction_width, ' ');
+        // 00000020: fe004ae3 blt x0,x0,0x14 //
+        // pc += (0x00000000 < 0x00000000 ? 0xfffffff4 : 4) = 0x00000024
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " < " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -1185,6 +1393,20 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
     if (rs1 < rs2)
         this->pc = this->pc + imm_b;
 
+    if (pos)
+    {
+        std::string s = render_btype(insn, " bge    ");
+        s.resize(instruction_width, ' ');
+        // 00000028: fe0066e3 bltu x0,x0,0x14 // pc += (0x00000000 <U 0x00000000 ? 0xffffffec : 4) = 0x0000002c
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " <U " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
+
     // increment program counter
     this->pc = this->pc + 4;
 }
@@ -1195,6 +1417,22 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
     if (rs1 != rs2)
         this->pc = this->pc + imm_b;
+
+    if (pos)
+    {
+        std::string s = render_btype(insn, " bne    ");
+        s.resize(instruction_width, ' ');
+        // s0000001c: feb59ce3 bne x11,x11,0x14
+        // // pc += (0xf0f0f0f0 != 0xf0f0f0f0 ? 0xfffffff8 : 4) = 0x00000020
+
+        *pos << s << "//  ";
+
+        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " != " << hex0x32(0xf0f0f0f0) << " ? "
+             << hex0x32(0xfffffff8) << " : "
+             << "4"
+             << ") = " << hex0x32(this->pc);
+        *pos << std::endl;
+    }
 
     // increment program counter
     this->pc = this->pc + 4;
