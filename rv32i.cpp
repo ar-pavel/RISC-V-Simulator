@@ -718,6 +718,7 @@ void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
     int32_t val = get_imm_u(insn);
     this->regs.set(reg, val + this->pc);
 
+    // std::cout << "reg: " << reg << "  data: " << hex32(this->regs.get(reg)) << std::endl;
     if (pos)
     {
         // 00000004: abcde217 auipc x4,0xabcde // x4 = 0x00000004 + 0xabcde000 = 0xabcde004
@@ -1088,12 +1089,13 @@ void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
 {
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t imm_i = get_imm_i(insn);
+
+    // write after reading the register value for rs1
     uint32_t reg = get_rd(insn);
     uint32_t nxt_insn = this->pc + 4;
     this->regs.set(reg, nxt_insn);
-
-    int32_t rs1 = this->regs.get(get_rs1(insn));
-    uint32_t imm_i = get_imm_i(insn);
 
     // jump
     this->pc = ((rs1 + imm_i) & 0xFFFFFFFE);
