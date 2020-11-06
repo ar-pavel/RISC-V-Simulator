@@ -678,6 +678,7 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         *pos << s << "//  HALT";
         *pos << std::endl;
         *pos << "Execution terminated by EBREAK instruction";
+        *pos << std::endl;
     }
     halt = true;
 }
