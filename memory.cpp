@@ -9,9 +9,10 @@ Parameters: 1. uint32_t siz: used to determined vectors size
 memory::memory(uint32_t siz)
 {
     size = (siz + 15) & 0xfffffff0;
+    size = (siz)&0xfffffff0;
 
     //resizes vector to size value and sets every element to 0xa5
-    mem.resize(size, 0xa5);
+    mem.resize(1000000, 0xa5);
 }
 
 /*

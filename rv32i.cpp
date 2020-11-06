@@ -1447,7 +1447,7 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " srli     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " xori     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a4: 4d264213 xori x4,x12,1234 // x4 = 0xf0f0f0f0 ^ 0x000004d2 = 0xf0f0f422
         *pos << s << "// "
