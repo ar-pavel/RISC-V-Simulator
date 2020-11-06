@@ -161,6 +161,7 @@ std::string rv32i::decode(uint32_t insn) const
         default:
             return render_eror(insn);
         }
+        break;
 
     case opcode_rtype: // R-type
         //checks get_funct3 value
@@ -212,6 +213,7 @@ std::string rv32i::decode(uint32_t insn) const
         case 0b111:
             return render_rtype(insn, " and    ");
         }
+        break;
 
     case opcode_fenc_opt: //fence operation
         return render_fence(insn);
@@ -226,6 +228,7 @@ std::string rv32i::decode(uint32_t insn) const
         default:
             return render_eror(insn);
         }
+        break;
 
     default:
         return render_illegal_insn();
@@ -574,6 +577,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_eror(insn, pos);
             break;
         }
+        break;
 
     case opcode_rtype: // R-type
         //checks get_funct3 value
@@ -638,6 +642,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_and(insn, pos);
             break;
         }
+        break;
 
     case opcode_fenc_opt: //fence operation
         exec_fence(insn, pos);
@@ -656,7 +661,7 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
             exec_eror(insn, pos);
             break;
         }
-
+        break;
     default:
         exec_illegal_insn(insn, pos);
         break;
@@ -1518,7 +1523,7 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
     if (pos)
     {
 
-        std::string s = render_stype(insn, " sh     ");
+        std::string s = render_stype(insn, " sw     ");
         // 00000094: 0e502a23 sw x5,244(x0) // m32(0x00000000 + 0x000000f4) = 0xffffffff
         s.resize(instruction_width, ' ');
         *pos << s << "//  ";
@@ -1722,7 +1727,7 @@ std::string rv32i::render_lui(uint32_t insn) const
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << (get_imm_u(insn) >> 12);
+    os << " lui     x" << std::dec << get_rd(insn) << ",0x" << std::hex << (uint32_t(get_imm_u(insn)) >> 12);
     return os.str();
 }
 std::string rv32i::render_auipc(uint32_t insn) const
@@ -1730,7 +1735,7 @@ std::string rv32i::render_auipc(uint32_t insn) const
     std::ostringstream os;
 
     os << hex32(insn) << " "; // the instruction hex value
-    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << (get_imm_u(insn) >> 12);
+    os << " auipc   x" << std::dec << get_rd(insn) << ",0x" << std::hex << ((uint32_t)get_imm_u(insn) >> 12);
 
     return os.str();
 }
