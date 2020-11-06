@@ -774,6 +774,7 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(sum);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -799,6 +800,7 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -825,6 +827,7 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -852,6 +855,7 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -876,6 +880,7 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " ? 1 : 0 = "
              << hex0x32(val);
+        *pos << std::endl;
     }
     regs.set(rd, val);
 
@@ -904,6 +909,7 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " ? 1 : 0 = "
              << hex0x32(val);
+        *pos << std::endl;
     }
     regs.set(reg, val);
 
@@ -935,6 +941,7 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -964,6 +971,7 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -990,6 +998,7 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(sub);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1015,6 +1024,7 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1259,6 +1269,7 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1290,6 +1301,7 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1316,6 +1328,7 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << ") ? 1 : 0 = "
              << hex0x32((rs1 < imm_i) ? 1 : 0);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1342,6 +1355,7 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << ") ? 1 : 0 = "
              << hex0x32((rs1 < imm_i) ? 1 : 0);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1374,6 +1388,7 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << " = "
              << hex0x32(data);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1406,6 +1421,7 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << " = "
              << hex0x32(data);
+        *pos << std::endl;
     }
 
     // increment program counter
@@ -1435,6 +1451,7 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
              << hex0x32(imm_i)
              << " = "
              << hex0x32(res);
+        *pos << std::endl;
     }
 
     // increment program counter
