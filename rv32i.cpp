@@ -381,8 +381,8 @@ void rv32i::tick()
         std::cout << hex32(insn) << " ";
 
         // execute instruction and render instruction and simulation details
-        std::ostream *dcex_output;
-        dcex(insn, dcex_output);
+        // std::ostream *dcex_output;
+        // dcex(insn, dcex_output);
 
         // TODO: display dcex_output
     }
@@ -417,7 +417,7 @@ void rv32i::run(uint64_t limit)
 }
 
 /*****************************************
- * Executor functions
+ * Execution Handler function
  * **************************************/
 
 void rv32i::dcex(uint32_t insn, std::ostream *pos)
@@ -443,22 +443,28 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
         switch (get_funct3(insn))
         {
         case 0b000:
-            exec_btype(insn, " beq    ", pos);
+            // exec_btype(insn, " beq    ", pos);
+            exec_beq(insn, pos);
             break;
         case 0b001:
-            exec_btype(insn, " bne    ", pos);
+            // exec_btype(insn, " bne    ", pos);
+            exec_bne(insn, pos);
             break;
         case 0b100:
-            exec_btype(insn, " blt    ", pos);
+            // exec_btype(insn, " blt    ", pos);
+            exec_blt(insn, pos);
             break;
         case 0b101:
-            exec_btype(insn, " bge    ", pos);
+            // exec_btype(insn, " bge    ", pos);
+            exec_bge(insn, pos);
             break;
         case 0b110:
-            exec_btype(insn, " bltu   ", pos);
+            // exec_btype(insn, " bltu   ", pos);
+            exec_bltu(insn, pos);
             break;
         case 0b111:
-            exec_btype(insn, " bgeu   ", pos);
+            // exec_btype(insn, " bgeu   ", pos);
+            exec_bgeu(insn, pos);
             break;
         default:
             exec_eror(insn, pos);
@@ -470,19 +476,24 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
         switch (get_funct3(insn))
         {
         case 0b000:
-            exec_itype_load(insn, " lb     ", pos);
+            // exec_itype_load(insn, " lb     ", pos);
+            exec_lb(insn, pos);
             break;
         case 0b001:
-            exec_itype_load(insn, " lh     ", pos);
+            // exec_itype_load(insn, " lh     ", pos);
+            exec_lh(insn, pos);
             break;
         case 0b010:
-            exec_itype_load(insn, " lw     ", pos);
+            // exec_itype_load(insn, " lw     ", pos);
+            exec_lw(insn, pos);
             break;
         case 0b100:
-            exec_itype_load(insn, " lbu    ", pos);
+            // exec_itype_load(insn, " lbu    ", pos);
+            exec_lbu(insn, pos);
             break;
         case 0b101:
-            exec_itype_load(insn, " lhu    ", pos);
+            // exec_itype_load(insn, " lhu    ", pos);
+            exec_lhu(insn, pos);
             break;
         default:
             exec_eror(insn, pos);
@@ -632,39 +643,104 @@ void rv32i::dcex(uint32_t insn, std::ostream *pos)
         break;
     }
 }
-//--------------------------------------------------------//
-/*
-void rv32i::exec_xxx(uint32_t insn, std::ostream *pos)
-{
-}
-
-void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
-{
-    // TODO: print render
-
-    // store val to register r
-    uint32_t r = get_rd(insn);
-    int32_t val = get_imm_u(insn);
-    this->regs.set(r, val);
-}
-
-
-void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
-{
-    // TODO: print render
-
-    // store instruction addr + U-value to register r
-    uint32_t r = get_rd(insn);
-    int32_t val = get_imm_u(insn);
-    this->regs.set(r, val + this->pc);
-}
-
-*/
 //-------------------------------------------------------//
 
 void rv32i::exec_illegal_insn(uint32_t insn, std::ostream *pos)
 {
     this->halt = true;
+}
+
+void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
+{
+    if (pos)
+    {
+        std::string s = render_ebreak(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  HALT";
+        *pos << std::endl;
+        *pos << "Execution terminated by EBREAK instruction";
+    }
+    halt = true;
+}
+
+/*****************************************
+ * U-Type Instructions
+ * **************************************/
+void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
+{
+    /*
+    if (pos)
+    {
+        std::string s = render_lui(insn);
+        s.resize(instruction_width, ' ');
+        *pos << s << "//  HALT";
+        *pos << std::endl;
+        *pos << "Execution terminated by EBREAK instruction";
+    }
+    */
+    // store val to register reg
+    uint32_t reg = get_rd(insn);
+    int32_t val = get_imm_u(insn);
+    this->regs.set(reg, val);
+}
+void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
+{
+    // store instruction addr + U-value to register reg
+    uint32_t reg = get_rd(insn);
+    int32_t val = get_imm_u(insn);
+    this->regs.set(reg, val + this->pc);
+}
+
+/*****************************************
+ * J-Type Instructions
+ * **************************************/
+void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    uint32_t nxt_insn = this->pc + 4;
+    this->regs.set(reg, nxt_insn);
+    uint32_t imm_j = get_imm_j(insn);
+    this->pc = this->pc + imm_j;
+}
+
+/*****************************************
+ * R-Type Instructions
+ * **************************************/
+void rv32i::exec_add(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t sum = rs1 + rs2;
+    this->regs.set(reg, sum);
+}
+
+void rv32i::exec_and(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t res = (rs1 & rs2);
+    this->regs.set(reg, res);
+}
+
+void rv32i::exec_or(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t res = (rs1 | rs2);
+    this->regs.set(reg, res);
+}
+
+void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+    uint32_t res = (rs1 << (rs2 & 0x1F));
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
 }
 
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
@@ -690,68 +766,258 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
     pc += 4;
 }
 
-void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
+void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
 {
-    if (pos)
-    {
-        std::string s = render_ebreak(insn);
-        s.resize(instruction_width, ' ');
-        *pos << s << "//  HALT";
-        *pos << std::endl;
-        *pos << "Execution terminated by EBREAK instruction";
-    }
-    halt = true;
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
+}
+void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
+{
+    // signed data type for arithmetic shift
+    int32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+
+    // arithmetic shift right
+    int32_t res = (rs1 >> rs2);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
+}
+void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+
+    // logical shift right
+    int32_t res = (rs1 >> rs2);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
+}
+
+void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t sub = rs1 - rs2;
+    this->regs.set(reg, sub);
+}
+
+void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t sub = rs1 - rs2;
+    this->regs.set(reg, sub);
 }
 
 /*****************************************
- * Instructions executing functions
+ * I-Type Instructions
  * **************************************/
-
-void exec_lui(uint32_t insn, std::ostream *pos)
+void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
 {
-    /*
-    if (pos)
-    {
-        std::string s = render_lui(insn);
-        s.resize(instruction_width, ' ');
-        *pos << s << "//  HALT";
-        *pos << std::endl;
-        *pos << "Execution terminated by EBREAK instruction";
-    }
-    */
-}
-void exec_auipc(uint32_t insn, std::ostream *pos)
-{
-}
-void exec_jal(uint32_t insn, std::ostream *pos)
-{
-}
-void exec_jalr(uint32_t insn, std::ostream *pos)
-{
-}
-void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos)
-{
-}
-void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos)
-{
-}
-void exec_fence(uint32_t insn, std::ostream *pos)
-{
-}
-void exec_ecall(uint32_t insn, std::ostream *pos)
-{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    int32_t sum = rs1 + imm_i;
+    this->regs.set(reg, sum);
 }
 
-void exec_eror(uint32_t insn, std::ostream *pos)
+void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    int32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    int32_t res = (rs1 & imm_i);
+    this->regs.set(reg, res);
+}
+
+void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
+{
+    uint32_t reg = get_rd(insn);
+    uint32_t nxt_insn = this->pc + 4;
+    this->regs.set(reg, nxt_insn);
+
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t imm_i = get_imm_i(insn);
+    this->pc = rs1 + imm_i;
+}
+void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    uint32_t addr = rs1 + imm_i;
+
+    int32_t data = this->mem->get8(addr);
+
+    // sign extend for 8-bit data
+    // 1000 0000 & data
+    if (0x80 & data)
+        data |= 0xFFFFFF00;
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    uint32_t addr = rs1 + imm_i;
+    int32_t data = this->mem->get16(addr);
+
+    // sign extend
+    if (0x8000 & data)
+        data |= 0xFFFF0000;
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    uint32_t addr = rs1 + imm_i;
+
+    int32_t data = this->mem->get32(addr);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    uint32_t addr = rs1 + imm_i;
+
+    // zero extended
+    int32_t data = this->mem->get8(addr);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_i = get_imm_i(insn);
+    uint32_t addr = rs1 + imm_i;
+
+    // zero extended
+    int32_t data = this->mem->get16(addr);
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, data);
+}
+
+/*****************************************
+ * S-Type Instructions
+ * **************************************/
+void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_s = get_imm_s(insn);
+    uint32_t addr = rs1 + imm_s;
+    uint8_t data = (uint8_t)get_rs2(insn);
+    this->mem->set8(addr, data);
+}
+void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_s = get_imm_s(insn);
+    uint32_t addr = rs1 + imm_s;
+    uint16_t data = (uint16_t)get_rs2(insn);
+    this->mem->set8(addr, data);
+}
+void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    int32_t imm_s = get_imm_s(insn);
+    uint32_t addr = rs1 + imm_s;
+    uint32_t data = (uint32_t)get_rs2(insn);
+    this->mem->set8(addr, data);
+}
+
+/*****************************************
+ * B-Type Instructions
+ * **************************************/
+void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 == rs2)
+        this->pc = this->pc + imm_b;
+}
+void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 >= rs2)
+        this->pc = this->pc + imm_b;
+}
+void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 >= rs2)
+        this->pc = this->pc + imm_b;
+}
+void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 < rs2)
+        this->pc = this->pc + imm_b;
+}
+void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
+{
+    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 < rs2)
+        this->pc = this->pc + imm_b;
+}
+void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
+{
+    int32_t rs1 = get_rs1(insn);
+    int32_t rs2 = get_rs2(insn);
+    int32_t imm_b = get_imm_b(insn);
+    if (rs1 != rs2)
+        this->pc = this->pc + imm_b;
+}
+
+// Instruction Executions Done
+
+void rv32i::exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void rv32i::exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void rv32i::exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void rv32i::exec_itype_alu(uint32_t insn, const char *mnemonic, int32_t imm_i, std::ostream *pos)
+{
+}
+void rv32i::exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos)
+{
+}
+void rv32i::exec_fence(uint32_t insn, std::ostream *pos)
+{
+}
+void rv32i::exec_ecall(uint32_t insn, std::ostream *pos)
+{
+}
+
+void rv32i::exec_eror(uint32_t insn, std::ostream *pos)
 {
 }
 

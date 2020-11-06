@@ -102,12 +102,6 @@ public:
     void dcex(uint32_t insn, std::ostream *);
     void exec_illegal_insn(uint32_t insn, std::ostream *pos);
     void exec_ebreak(uint32_t insn, std::ostream *pos);
-    void exec_slt(uint32_t insn, std::ostream *pos);
-
-    void exec_lui(uint32_t insn, std::ostream *pos);
-    void exec_auipc(uint32_t insn, std::ostream *pos);
-    void exec_jal(uint32_t insn, std::ostream *pos);
-    void exec_jalr(uint32_t insn, std::ostream *pos);
     void exec_btype(uint32_t insn, const char *mnemonic, std::ostream *pos);
     void exec_itype_load(uint32_t insn, const char *mnemonic, std::ostream *pos);
     void exec_stype(uint32_t insn, const char *mnemonic, std::ostream *pos);
@@ -115,8 +109,49 @@ public:
     void exec_rtype(uint32_t insn, const char *mnemonic, std::ostream *pos);
     void exec_fence(uint32_t insn, std::ostream *pos);
     void exec_ecall(uint32_t insn, std::ostream *pos);
-    void exec_ebreak(uint32_t insn, std::ostream *pos);
     void exec_eror(uint32_t insn, std::ostream *pos);
+
+    // U-Type Instructions
+    void exec_lui(uint32_t insn, std::ostream *pos);
+    void exec_auipc(uint32_t insn, std::ostream *pos);
+
+    // J-Type Instructions
+    void exec_jal(uint32_t insn, std::ostream *pos);
+
+    // R-Type Instructions
+    void exec_add(uint32_t insn, std::ostream *pos);
+    void exec_and(uint32_t insn, std::ostream *pos);
+    void exec_or(uint32_t insn, std::ostream *pos);
+    void exec_sll(uint32_t insn, std::ostream *pos);
+    void exec_slt(uint32_t insn, std::ostream *pos);
+    void exec_sltu(uint32_t insn, std::ostream *pos);
+    void exec_sra(uint32_t insn, std::ostream *pos);
+    void exec_srl(uint32_t insn, std::ostream *pos);
+    void exec_sub(uint32_t insn, std::ostream *pos);
+    void exec_xor(uint32_t insn, std::ostream *pos);
+
+    // I-Type Instructions
+    void exec_addi(uint32_t insn, std::ostream *pos);
+    void exec_andi(uint32_t insn, std::ostream *pos);
+    void exec_jalr(uint32_t insn, std::ostream *pos);
+    void exec_lb(uint32_t insn, std::ostream *pos);
+    void exec_lh(uint32_t insn, std::ostream *pos);
+    void exec_lw(uint32_t insn, std::ostream *pos);
+    void exec_lbu(uint32_t insn, std::ostream *pos);
+    void exec_lhu(uint32_t insn, std::ostream *pos);
+
+    // S-Type Instructions
+    void exec_sb(uint32_t insn, std::ostream *pos);
+    void exec_sh(uint32_t insn, std::ostream *pos);
+    void exec_sw(uint32_t insn, std::ostream *pos);
+
+    // B=Type Instructions
+    void exec_beq(uint32_t insn, std::ostream *pos);
+    void exec_bge(uint32_t insn, std::ostream *pos);
+    void exec_bgeu(uint32_t insn, std::ostream *pos);
+    void exec_blt(uint32_t insn, std::ostream *pos);
+    void exec_bltu(uint32_t insn, std::ostream *pos);
+    void exec_bne(uint32_t insn, std::ostream *pos);
 
     // String render formatting
     std::string render_illegal_insn() const;
