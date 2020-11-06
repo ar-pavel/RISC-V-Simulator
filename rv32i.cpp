@@ -276,7 +276,7 @@ uint32_t rv32i::get_funct7(uint32_t insn)
 int32_t rv32i::get_imm_i(uint32_t insn)
 {
     int32_t imm_i = (insn & 0xFFFF00000) >> 20;
-    if (insn & 0x80000000) // sign - extend
+    if (insn & 0x80000000) // sign extend
         imm_i |= 0xFFFFF000;
     return imm_i;
 }
@@ -295,7 +295,7 @@ int32_t rv32i::get_imm_b(uint32_t insn)
     imm_b |= (insn & 0x7E000000) >> 20;  // extract & shift bits 25 - 30 to 5 - 10
     imm_b |= (insn & 0x80) << 4;         // extract & shift bit 7 to 11
     imm_b |= (insn & 0x80000000) >> 19;  // extract & shift bit 31 to 12
-    if (insn & 0x80000000)               // sign - extend
+    if (insn & 0x80000000)               // sign extend
         imm_b |= 0xFFFFE000;
     return imm_b;
 }
@@ -306,7 +306,7 @@ int32_t rv32i ::get_imm_s(uint32_t insn)
 {
     int32_t imm_s = (insn & 0xfe000000) >> 20; // extract & shift bits 25 - 31 to 5 - 11
     imm_s |= (insn & 0x00000f80) >> 7;         // extract & shift bits 7 - 11 to 0 - 4
-    if (insn & 0x80000000)                     // sign - extend
+    if (insn & 0x80000000)                     // sign extend
         imm_s |= 0xFFFFF000;
 
     return imm_s;
@@ -320,7 +320,7 @@ int32_t rv32i::get_imm_j(uint32_t insn)
     imm_j |= (insn & 0x100000) >> 9;           // extract & shift bit 20 to bit 11
     imm_j |= (insn & 0xFF000);                 // extract & shift bits 12 - 19 to 12 - 19
     imm_j |= (insn & 0x80000000) >> 11;        // extract & shift bit 31 to 20
-    if (insn & 0x80000000)                     // sign - extend
+    if (insn & 0x80000000)                     // sign extend
         imm_j |= 0xFFE00000;
     return imm_j;
 }
@@ -757,8 +757,8 @@ void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
 void rv32i::exec_add(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t sum = rs1 + rs2;
     this->regs.set(reg, sum);
 
@@ -783,8 +783,8 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
 void rv32i::exec_and(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t res = (rs1 & rs2);
     this->regs.set(reg, res);
     if (pos)
@@ -808,8 +808,8 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
 void rv32i::exec_or(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t res = (rs1 | rs2);
     this->regs.set(reg, res);
 
@@ -833,8 +833,8 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
     uint32_t res = (rs1 << (rs2 & 0x1F));
 
     uint32_t reg = get_rd(insn);
@@ -861,8 +861,8 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
 {
     uint32_t rd = get_rd(insn);
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
     int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
     if (pos)
     {
@@ -885,8 +885,8 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
 
     uint32_t reg = get_rd(insn);
     int32_t val = (regs.get(rs1) < regs.get(rs2)) ? 1 : 0;
@@ -914,8 +914,8 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
 void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 {
     // signed data type for arithmetic shift
-    int32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
 
     // arithmetic shift right
     int32_t res = (rs1 >> rs2);
@@ -943,8 +943,8 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
 
     // logical shift right
     int32_t res = (rs1 >> rs2);
@@ -973,8 +973,8 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t sub = rs1 - rs2;
     this->regs.set(reg, sub);
 
@@ -999,8 +999,8 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
 void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t res = (rs1 ^ rs2);
     this->regs.set(reg, res);
     if (pos)
@@ -1027,7 +1027,7 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
 void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     int32_t sum = rs1 + imm_i;
     this->regs.set(reg, sum);
@@ -1050,7 +1050,7 @@ void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
 void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
 {
     uint32_t reg = get_rd(insn);
-    int32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     int32_t res = (rs1 & imm_i);
     this->regs.set(reg, res);
@@ -1075,8 +1075,11 @@ void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
     uint32_t nxt_insn = this->pc + 4;
     this->regs.set(reg, nxt_insn);
 
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     uint32_t imm_i = get_imm_i(insn);
+
+    // jump
+    this->pc = ((rs1 + imm_i) & 0xFFFFFFFE);
 
     if (pos)
     {
@@ -1091,16 +1094,13 @@ void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
         *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ", pc"
              << " = (" << hex0x32(imm_i) << " + " << hex0x32(rs1) << ") & "
              << "0xfffffffe"
-             << " = " << hex0x32(nxt_insn);
+             << " = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // jump
-    this->pc = rs1 + imm_i;
 }
 void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     uint32_t addr = rs1 + imm_i;
 
@@ -1131,7 +1131,7 @@ void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     uint32_t addr = rs1 + imm_i;
     int32_t data = this->mem->get16(addr);
@@ -1145,7 +1145,6 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-
         std::string s = render_itype_load(insn, " lh   ");
 
         // 0000007c: 01031203 lh x4,16(x6) // x4 = sx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
@@ -1160,7 +1159,7 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     uint32_t addr = rs1 + imm_i;
 
@@ -1174,7 +1173,8 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 
         std::string s = render_itype_load(insn, " lw   ");
 
-        // 00000084: 01032203 lw x4,16(x6) // x4 = sx(m32(0x00000010 + 0x00000010)) = 0xfe004ae3        s.resize(instruction_width, ' ');
+        // 00000084: 01032203 lw x4,16(x6) // x4 = sx(m32(0x00000010 + 0x00000010)) = 0xfe004ae3
+        s.resize(instruction_width, ' ');
         *pos << s << "//  ";
         *pos << "x" << reg << " = sx(m32(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
@@ -1185,7 +1185,7 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     uint32_t addr = rs1 + imm_i;
 
@@ -1212,7 +1212,7 @@ void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     uint32_t addr = rs1 + imm_i;
 
@@ -1240,7 +1240,7 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
     int32_t res = (rs1 | imm_i);
 
@@ -1267,7 +1267,7 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     // 5 LSB of imm_i is shamt_i
@@ -1298,7 +1298,7 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     uint32_t reg = get_rd(insn);
@@ -1324,7 +1324,7 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     uint32_t imm_i = get_imm_i(insn);
 
     uint32_t reg = get_rd(insn);
@@ -1350,7 +1350,7 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     // 5 LSB of imm_i is shamt_i
@@ -1382,7 +1382,7 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     // 5 LSB of imm_i is shamt_i
@@ -1414,7 +1414,7 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     // xor
@@ -1446,10 +1446,10 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
  * **************************************/
 void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_s = get_imm_s(insn);
     uint32_t addr = rs1 + imm_s;
-    uint8_t data = (uint8_t)get_rs2(insn);
+    uint8_t data = (uint8_t)this->regs.get(get_rs2(insn));
     this->mem->set8(addr, data);
 
     if (pos)
@@ -1469,10 +1469,10 @@ void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_s = get_imm_s(insn);
     uint32_t addr = rs1 + imm_s;
-    uint16_t data = (uint16_t)get_rs2(insn);
+    uint16_t data = (uint16_t)this->regs.get(get_rs2(insn));
     this->mem->set8(addr, data);
 
     if (pos)
@@ -1491,7 +1491,7 @@ void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_s = get_imm_s(insn);
     uint32_t addr = rs1 + imm_s;
     uint32_t data = (uint32_t)get_rs2(insn);
@@ -1517,12 +1517,12 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
  * **************************************/
 void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 == rs2 ? imm_b : 4);
+    this->pc += (rs1 == rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1531,8 +1531,8 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
         // 00000030: 00000463 beq x0,x0,0x38 // pc += (0x00000000 == 0x00000000 ? 0x00000008 : 4) = 0x00000038
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " == " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " == " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
@@ -1540,12 +1540,12 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 >= rs2 ? imm_b : 4);
+    this->pc += (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1555,8 +1555,8 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
         // pc += (0xf0f0f0f0 >= 0x00000000 ? 0xfffffff0 : 4) = 0x00000028
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " >= " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " >= " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
@@ -1564,12 +1564,12 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 >= rs2 ? imm_b : 4);
+    this->pc += (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1578,8 +1578,8 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
         // 0000002c: fea074e3 bgeu x0,x10,0x14 // pc += (0x00000000 >=U 0xf0f0f0f0 ? 0xffffffe8 : 4) = 0x00000030
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " >=U " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " >=U " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
@@ -1587,12 +1587,12 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 < rs2 ? imm_b : 4);
+    this->pc += (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1602,8 +1602,8 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
         // pc += (0x00000000 < 0x00000000 ? 0xfffffff4 : 4) = 0x00000024
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " < " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " < " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
@@ -1611,12 +1611,12 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 {
-    uint32_t rs1 = get_rs1(insn);
-    uint32_t rs2 = get_rs2(insn);
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 < rs2 ? imm_b : 4);
+    this->pc += (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1625,8 +1625,8 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
         // 00000028: fe0066e3 bltu x0,x0,0x14 // pc += (0x00000000 <U 0x00000000 ? 0xffffffec : 4) = 0x0000002c
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " <U " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " <U " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
@@ -1634,12 +1634,12 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 }
 void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = get_rs1(insn);
-    int32_t rs2 = get_rs2(insn);
+    int32_t rs1 = this->regs.get(get_rs1(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc = (rs1 != rs2 ? imm_b : 4);
+    this->pc += (rs1 != rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1650,8 +1650,8 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 
         *pos << s << "//  ";
 
-        *pos << "pc += (" << hex0x32(0xf0f0f0f0) << " != " << hex0x32(0xf0f0f0f0) << " ? "
-             << hex0x32(0xfffffff8) << " : "
+        *pos << "pc += (" << hex0x32(rs1) << " != " << hex0x32(rs2) << " ? "
+             << hex0x32(imm_b) << " : "
              << "4"
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
