@@ -898,7 +898,7 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
         s.resize(instruction_width, ' ');
         // 000000cc: 00f73233 sltu x4,x14,x15 // x4 = (0xf0f0f0f0 <U 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "// "
-             << "x" << rd << " = ("
+             << "x" << reg << " = ("
              << hex0x32(rs1)
              << " <U "
              << hex0x32(rs2)
@@ -1062,7 +1062,7 @@ void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " andi   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         *pos << s << "//  ";
-        *pos << "x" << reg << " = " << hex0x32(rs1) << " & " << hex0x32(imm_i) << " = " << hex0x32(sum);
+        *pos << "x" << reg << " = " << hex0x32(rs1) << " & " << hex0x32(imm_i) << " = " << hex0x32(res);
         *pos << std::endl;
     }
     // increment program counter
@@ -1520,8 +1520,9 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
     int32_t rs1 = get_rs1(insn);
     int32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 == rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 == rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1536,17 +1537,15 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
 {
     int32_t rs1 = get_rs1(insn);
     int32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 >= rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1562,17 +1561,15 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
     uint32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 >= rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1587,17 +1584,15 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
 {
     int32_t rs1 = get_rs1(insn);
     int32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 < rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1613,17 +1608,15 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = get_rs1(insn);
     uint32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 < rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1638,17 +1631,15 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 {
     int32_t rs1 = get_rs1(insn);
     int32_t rs2 = get_rs2(insn);
     int32_t imm_b = get_imm_b(insn);
-    if (rs1 != rs2)
-        this->pc = this->pc + imm_b;
+
+    // conditional jump
+    this->pc = (rs1 != rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1665,9 +1656,6 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
              << ") = " << hex0x32(this->pc);
         *pos << std::endl;
     }
-
-    // increment program counter
-    this->pc = this->pc + 4;
 }
 
 // Instruction Executions Done
