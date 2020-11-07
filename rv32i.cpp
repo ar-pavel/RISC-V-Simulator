@@ -771,7 +771,7 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, " add     ");
+        std::string s = render_rtype(insn, " add    ");
         s.resize(instruction_width, ' ');
         // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 + 0xf0f0f0f0 = 0xf0f0f0f0
         *pos << s << "          // "
@@ -797,7 +797,7 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
     this->regs.set(reg, res);
     if (pos)
     {
-        std::string s = render_rtype(insn, " and     ");
+        std::string s = render_rtype(insn, " and    ");
         s.resize(instruction_width, ' ');
         // 000000dc: 00f76233 or x4,x14,x15 // x4 = 0xf0f0f0f0 | 0xf0f0f0f0 = 0xf0f0f0f0
         *pos << s << "          // "
@@ -851,7 +851,7 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, " sll     ");
+        std::string s = render_rtype(insn, " sll    ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
         *pos << s << "          // "
@@ -878,7 +878,7 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
     int32_t val = (rs1 < rs2) ? 1 : 0;
     if (pos)
     {
-        std::string s = render_rtype(insn, " slt     ");
+        std::string s = render_rtype(insn, " slt    ");
         s.resize(instruction_width, ' ');
         // slt x4,x14,x15 // x4 = (0xf0f0f0f0 < 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "          // "
@@ -907,7 +907,7 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
     // this->regs.set(reg, (rs1 < rs2) ? 1 : 0);
     if (pos)
     {
-        std::string s = render_rtype(insn, " sltu     ");
+        std::string s = render_rtype(insn, " sltu   ");
         s.resize(instruction_width, ' ');
         // 000000cc: 00f73233 sltu x4,x14,x15 // x4 = (0xf0f0f0f0 <U 0xf0f0f0f0) ? 1 : 0 = 0x00000000
         *pos << s << "          // "
@@ -939,7 +939,7 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, " sra     ");
+        std::string s = render_rtype(insn, " sra    ");
         s.resize(instruction_width, ' ');
         // 000000d8: 40f751b3 sra x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0xfffff0f0
         *pos << s << "          // "
@@ -966,7 +966,7 @@ void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, " srl     ");
+        std::string s = render_rtype(insn, " srl    ");
         s.resize(instruction_width, ' ');
         // 000000d4: 00f751b3 srl x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0x0000f0f0
         *pos << s << "          // "
@@ -996,7 +996,7 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_rtype(insn, " sub     ");
+        std::string s = render_rtype(insn, " sub    ");
         s.resize(instruction_width, ' ');
         // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 & 0xf0f0f0f0 = 0xf0f0f0f0
         *pos << s << "          // "
@@ -1022,7 +1022,7 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
     this->regs.set(reg, res);
     if (pos)
     {
-        std::string s = render_rtype(insn, " xor     ");
+        std::string s = render_rtype(insn, " xor    ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
         *pos << s << "          // "
@@ -1136,7 +1136,7 @@ void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
     if (pos)
     {
 
-        std::string s = render_itype_load(insn, " lb   ");
+        std::string s = render_itype_load(insn, " lb     ");
         // 00000074: 01030203 lb x4,16(x6) // x4 = sx(m8(0x00000010 + 0x00000010)) = 0xffffffe3
 
         s.resize(instruction_width, ' ');
@@ -1164,7 +1164,7 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_load(insn, " lh   ");
+        std::string s = render_itype_load(insn, " lh     ");
 
         // 0000007c: 01031203 lh x4,16(x6) // x4 = sx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
         s.resize(instruction_width, ' ');
@@ -1190,7 +1190,7 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
     if (pos)
     {
 
-        std::string s = render_itype_load(insn, " lw   ");
+        std::string s = render_itype_load(insn, " lw     ");
 
         // 00000084: 01032203 lw x4,16(x6) // x4 = sx(m32(0x00000010 + 0x00000010)) = 0xfe004ae3
         s.resize(instruction_width, ' ');
@@ -1217,7 +1217,7 @@ void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
     if (pos)
     {
 
-        std::string s = render_itype_load(insn, " lbu   ");
+        std::string s = render_itype_load(insn, " lbu    ");
         // 00000064: 01034203 lbu x4,16(x6) // x4 = zx(m8(0x00000010 + 0x00000010)) = 0x000000e3
 
         s.resize(instruction_width, ' ');
@@ -1244,7 +1244,7 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
     if (pos)
     {
 
-        std::string s = render_itype_load(insn, " lhu   ");
+        std::string s = render_itype_load(insn, " lhu    ");
 
         // 0000006c: 01035203 lhu x4,16(x6) // x4 = zx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
         s.resize(instruction_width, ' ');
@@ -1268,7 +1268,7 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " ori     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " ori    ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a8: 4d266213 ori x4,x12,1234 // x4 = 0xf0f0f0f0 | 0x000004d2 = 0xf0f0f4f2
         *pos << s << "          // "
@@ -1300,7 +1300,7 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " slli     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " slli   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b0: 00c69213 slli x4,x13,12 // x4 = 0xf0f0f0f0 << 12 = 0x0f0f0000
         *pos << s << "          // "
@@ -1327,7 +1327,7 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " slti     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " slti   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 0000009c: 4d262213 slti x4,x12,1234 // x4 = (0xf0f0f0f0 < 1234) ? 1 : 0 = 0x00000001
         *pos << s << "          // "
@@ -1354,7 +1354,7 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " sltiu     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " sltiu  ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a0: 4d263213 sltiu x4,x12,1234 // x4 = (0xf0f0f0f0 <U 1234) ? 1 : 0 = 0x00000000
         *pos << s << "          // "
@@ -1387,7 +1387,7 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " srai     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " srai   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b8: 40c6d213 srai x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0xffff0f0f
         *pos << s << "          // "
@@ -1420,7 +1420,7 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " srli     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " srli   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b4: 00c6d213 srli x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0x000f0f0f
         *pos << s << "          // "
@@ -1450,7 +1450,7 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " xori    ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " xori   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a4: 4d264213 xori x4,x12,1234 // x4 = 0xf0f0f0f0 ^ 0x000004d2 = 0xf0f0f422
         *pos << s << "          // "
@@ -1608,7 +1608,7 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_btype(insn, " bgeu    ");
+        std::string s = render_btype(insn, " bgeu   ");
         s.resize(instruction_width, ' ');
         // 0000002c: fea074e3 bgeu x0,x10,0x14 // pc += (0x00000000 >=U 0xf0f0f0f0 ? 0xffffffe8 : 4) = 0x00000030
         *pos << s << "          // ";
@@ -1658,7 +1658,7 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_btype(insn, " bltu    ");
+        std::string s = render_btype(insn, " bltu   ");
         s.resize(instruction_width, ' ');
         // 00000028: fe0066e3 bltu x0,x0,0x14 // pc += (0x00000000 <U 0x00000000 ? 0xffffffec : 4) = 0x0000002c
         *pos << s << "          // ";
