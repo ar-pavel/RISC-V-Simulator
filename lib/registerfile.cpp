@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
-#include "registerfile.h"
-#include "hex.h"
+#include "include/registerfile.h"
+#include "include/hex.h"
 
 // Initialize register x0 to zero, and all other registers to 0xf0f0f0f0.
 void registerfile::reset()

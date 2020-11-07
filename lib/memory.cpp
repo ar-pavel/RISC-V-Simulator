@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "hex.h"
-#include "memory.h"
+#include "include/hex.h"
+#include "include/memory.h"
 /*
 Use: initializes vector to 0xa5
 Parameters: 1. uint32_t siz: used to determined vectors size

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "hex.h"
-#include "rv32i.h"
+#include "include/hex.h"
+#include "include/rv32i.h"
 
 //Save the m argument in the mem member variable for use later when disassembling
 rv32i::rv32i(memory *m)
@@ -681,10 +681,10 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         std::string s = render_ebreak(insn);
         s.resize(instruction_width, ' ');
         *pos << s << "          // HALT";
-      
+
         *pos << std::endl;
     }
-            cout << "Execution terminated by EBREAK instruction\n";
+    cout << "Execution terminated by EBREAK instruction\n";
 
     this->halt = true;
 }

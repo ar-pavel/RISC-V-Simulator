@@ -2,9 +2,9 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "hex.h"
-#include "memory.h"
-#include "rv32i.h"
+#include "include/hex.h"
+#include "include/memory.h"
+#include "include/rv32i.h"
 
 /**
  * Print a usage message and abort the program.
