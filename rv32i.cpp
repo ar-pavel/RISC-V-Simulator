@@ -750,7 +750,7 @@ void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
         s.resize(instruction_width, ' ');
         *pos << s << "          // ";
         *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ",  pc"
-             << " = " << hex0x32(this->pc) << " + " << hex0x32(this->pc) << " = " << hex0x32(this->pc + this->pc);
+             << " = " << hex0x32(this->pc) << " + " << hex0x32(imm_j) << " = " << hex0x32(this->pc + imm_j);
         *pos << std::endl;
     }
 
@@ -1553,7 +1553,7 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc += (rs1 == rs2 ? imm_b : 4);
+    int32_t jump_to = (rs1 == rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1565,9 +1565,11 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " == " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
 {
@@ -1576,7 +1578,7 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc += (rs1 >= rs2 ? imm_b : 4);
+    int32_t jump_to = (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1589,9 +1591,11 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " >= " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
 {
@@ -1600,7 +1604,7 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc += (rs1 >= rs2 ? imm_b : 4);
+    int32_t jump_to = (rs1 >= rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1612,9 +1616,11 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " >=U " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
 {
@@ -1623,7 +1629,7 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
     int32_t imm_b = get_imm_b(insn);
 
     // conditional jump
-    this->pc += (rs1 < rs2 ? imm_b : 4);
+    int32_t jump_to = (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1636,9 +1642,11 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " < " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
 {
@@ -1646,8 +1654,7 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
     uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
-    // conditional jump
-    this->pc += (rs1 < rs2 ? imm_b : 4);
+    int32_t jump_to = (rs1 < rs2 ? imm_b : 4);
 
     if (pos)
     {
@@ -1659,9 +1666,11 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " <U " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
 {
@@ -1669,9 +1678,8 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
     int32_t rs2 = this->regs.get(get_rs2(insn));
     int32_t imm_b = get_imm_b(insn);
 
-    // conditional jump
-    this->pc += (rs1 != rs2 ? imm_b : 4);
-
+    int32_t jump_to = (rs1 != rs2 ? imm_b : 4);
+    // std::cout << "pc: " << this->pc << " imm_b: " << imm_b << " pc+imm_b   " << hex32(this->pc + imm_b) << std::endl;
     if (pos)
     {
         std::string s = render_btype(insn, " bne    ");
@@ -1684,9 +1692,11 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
         *pos << "pc += (" << hex0x32(rs1) << " != " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
              << "4"
-             << ") = " << hex0x32(this->pc);
+             << ") = " << hex0x32(this->pc + jump_to);
         *pos << std::endl;
     }
+    // conditional jump
+    this->pc += jump_to;
 }
 
 // Instruction Executions Done
