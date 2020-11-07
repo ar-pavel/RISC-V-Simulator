@@ -681,10 +681,11 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
         std::string s = render_ebreak(insn);
         s.resize(instruction_width, ' ');
         *pos << s << "          // HALT";
-        *pos << std::endl;
-        *pos << "Execution terminated by EBREAK instruction";
+      
         *pos << std::endl;
     }
+            cout << "Execution terminated by EBREAK instruction\n";
+
     this->halt = true;
 }
 
