@@ -231,7 +231,7 @@ std::string rv32i::decode(uint32_t insn) const
         break;
 
     default:
-        return render_illegal_insn();
+        return render_illegal_insn(insn);
     }
 
     return "";
@@ -680,7 +680,7 @@ void rv32i::exec_ebreak(uint32_t insn, std::ostream *pos)
     {
         std::string s = render_ebreak(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  HALT";
+        *pos << s << "          // HALT";
         *pos << std::endl;
         *pos << "Execution terminated by EBREAK instruction";
         *pos << std::endl;
@@ -706,7 +706,7 @@ void rv32i::exec_lui(uint32_t insn, std::ostream *pos)
         // 00000000: abcde237 lui x4,0xabcde // x4 = 0xabcde000
         std::string s = render_lui(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = " << hex0x32(val);
         *pos << std::endl;
     }
@@ -724,7 +724,7 @@ void rv32i::exec_auipc(uint32_t insn, std::ostream *pos)
         // 00000004: abcde217 auipc x4,0xabcde // x4 = 0x00000004 + 0xabcde000 = 0xabcde004
         std::string s = render_auipc(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = " << hex0x32(this->pc) << " + " << hex0x32(val) << " = " << hex0x32(val + this->pc);
         *pos << std::endl;
     }
@@ -745,11 +745,11 @@ void rv32i::exec_jal(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        // 00000008: 008000ef jal x1,0x10 // x1 = 0x0000000c, pc = 0x00000008 + 0x00000008 = 0x00000010
+        // 00000008: 008000ef jal x1,0x10 // x1 = 0x0000000c,  pc = 0x00000008 + 0x00000008 = 0x00000010
         std::string s = render_jal(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
-        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ", pc"
+        *pos << s << "          // ";
+        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ",  pc"
              << " = " << hex0x32(this->pc) << " + " << hex0x32(this->pc) << " = " << hex0x32(this->pc + this->pc);
         *pos << std::endl;
     }
@@ -774,7 +774,7 @@ void rv32i::exec_add(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " add     ");
         s.resize(instruction_width, ' ');
         // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 + 0xf0f0f0f0 = 0xf0f0f0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " + "
@@ -800,10 +800,10 @@ void rv32i::exec_and(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " and     ");
         s.resize(instruction_width, ' ');
         // 000000dc: 00f76233 or x4,x14,x15 // x4 = 0xf0f0f0f0 | 0xf0f0f0f0 = 0xf0f0f0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
-             << " | "
+             << " & "
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
@@ -827,10 +827,10 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " or     ");
         s.resize(instruction_width, ' ');
         // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 & 0xf0f0f0f0 = 0xf0f0f0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
-             << " & "
+             << " | "
              << hex0x32(rs2)
              << " = "
              << hex0x32(res);
@@ -844,7 +844,7 @@ void rv32i::exec_or(uint32_t insn, std::ostream *pos)
 void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
-    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn)) & 0x1F;
     uint32_t res = (rs1 << (rs2 & 0x1F));
 
     uint32_t reg = get_rd(insn);
@@ -854,11 +854,11 @@ void rv32i::exec_sll(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " sll     ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " << "
-             << hex0x32(rs2)
+             << rs2
              << " = "
              << hex0x32(res);
         *pos << std::endl;
@@ -881,12 +881,12 @@ void rv32i::exec_slt(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " slt     ");
         s.resize(instruction_width, ' ');
         // slt x4,x14,x15 // x4 = (0xf0f0f0f0 < 0xf0f0f0f0) ? 1 : 0 = 0x00000000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << rd << " = ("
              << hex0x32(rs1)
              << " < "
              << hex0x32(rs2)
-             << " ? 1 : 0 = "
+             << ") ? 1 : 0 = "
              << hex0x32(val);
         *pos << std::endl;
     }
@@ -910,12 +910,12 @@ void rv32i::exec_sltu(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " sltu     ");
         s.resize(instruction_width, ' ');
         // 000000cc: 00f73233 sltu x4,x14,x15 // x4 = (0xf0f0f0f0 <U 0xf0f0f0f0) ? 1 : 0 = 0x00000000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << reg << " = ("
              << hex0x32(rs1)
              << " <U "
              << hex0x32(rs2)
-             << " ? 1 : 0 = "
+             << ") ? 1 : 0 = "
              << hex0x32(val);
         *pos << std::endl;
     }
@@ -929,7 +929,7 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 {
     // signed data type for arithmetic shift
     int32_t rs1 = this->regs.get(get_rs1(insn));
-    int32_t rs2 = this->regs.get(get_rs2(insn));
+    int32_t rs2 = this->regs.get(get_rs2(insn)) & 0x1F;
 
     // arithmetic shift right
     int32_t res = (rs1 >> rs2);
@@ -942,11 +942,11 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " sra     ");
         s.resize(instruction_width, ' ');
         // 000000d8: 40f751b3 sra x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0xfffff0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " >> "
-             << hex0x32(rs2)
+             << rs2
              << " = "
              << hex0x32(res);
         *pos << std::endl;
@@ -959,28 +959,28 @@ void rv32i::exec_sra(uint32_t insn, std::ostream *pos)
 void rv32i::exec_srl(uint32_t insn, std::ostream *pos)
 {
     uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
-    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn));
+    uint32_t rs2 = (uint32_t)this->regs.get(get_rs2(insn)) & 0x1F;
 
     // logical shift right
     int32_t res = (rs1 >> rs2);
-
-    uint32_t reg = get_rd(insn);
-    this->regs.set(reg, res);
 
     if (pos)
     {
         std::string s = render_rtype(insn, " srl     ");
         s.resize(instruction_width, ' ');
         // 000000d4: 00f751b3 srl x3,x14,x15 // x3 = 0xf0f0f0f0 >> 16 = 0x0000f0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " >> "
-             << hex0x32(rs2)
+             << (rs2)
              << " = "
              << hex0x32(res);
         *pos << std::endl;
     }
+
+    uint32_t reg = get_rd(insn);
+    this->regs.set(reg, res);
 
     // increment program counter
     this->pc = this->pc + 4;
@@ -999,7 +999,7 @@ void rv32i::exec_sub(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " sub     ");
         s.resize(instruction_width, ' ');
         // 000000e0: 00f77233 and x4,x14,x15 // x4 = 0xf0f0f0f0 & 0xf0f0f0f0 = 0xf0f0f0f0
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " - "
@@ -1025,7 +1025,7 @@ void rv32i::exec_xor(uint32_t insn, std::ostream *pos)
         std::string s = render_rtype(insn, " xor     ");
         s.resize(instruction_width, ' ');
         // 000000d0: 00f74233 xor x4,x14,x15 // x4 = 0xf0f0f0f0 ^ 0xf0f0f0f0 = 0x00000000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " ^ "
@@ -1056,7 +1056,7 @@ void rv32i::exec_addi(uint32_t insn, std::ostream *pos)
 
         std::string s = render_itype_alu(insn, " addi   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = " << hex0x32(rs1) << " + " << hex0x32(imm_i) << " = " << hex0x32(sum);
         *pos << std::endl;
     }
@@ -1079,7 +1079,7 @@ void rv32i::exec_andi(uint32_t insn, std::ostream *pos)
 
         std::string s = render_itype_alu(insn, " andi   ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = " << hex0x32(rs1) << " & " << hex0x32(imm_i) << " = " << hex0x32(res);
         *pos << std::endl;
     }
@@ -1109,8 +1109,8 @@ void rv32i::exec_jalr(uint32_t insn, std::ostream *pos)
 
         std::string s = render_jalr(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
-        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ", pc"
+        *pos << s << "          // ";
+        *pos << "x" << reg << " = " << hex0x32(nxt_insn) << ",  pc"
              << " = (" << hex0x32(imm_i) << " + " << hex0x32(rs1) << ") & "
              << "0xfffffffe"
              << " = " << hex0x32(this->pc);
@@ -1140,7 +1140,7 @@ void rv32i::exec_lb(uint32_t insn, std::ostream *pos)
         // 00000074: 01030203 lb x4,16(x6) // x4 = sx(m8(0x00000010 + 0x00000010)) = 0xffffffe3
 
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = sx(m8(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1168,7 +1168,7 @@ void rv32i::exec_lh(uint32_t insn, std::ostream *pos)
 
         // 0000007c: 01031203 lh x4,16(x6) // x4 = sx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = sx(m16(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1194,7 +1194,7 @@ void rv32i::exec_lw(uint32_t insn, std::ostream *pos)
 
         // 00000084: 01032203 lw x4,16(x6) // x4 = sx(m32(0x00000010 + 0x00000010)) = 0xfe004ae3
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = sx(m32(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1221,7 +1221,7 @@ void rv32i::exec_lbu(uint32_t insn, std::ostream *pos)
         // 00000064: 01034203 lbu x4,16(x6) // x4 = zx(m8(0x00000010 + 0x00000010)) = 0x000000e3
 
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = zx(m8(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1248,7 +1248,7 @@ void rv32i::exec_lhu(uint32_t insn, std::ostream *pos)
 
         // 0000006c: 01035203 lhu x4,16(x6) // x4 = zx(m16(0x00000010 + 0x00000010)) = 0x00004ae3
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "x" << reg << " = zx(m16(" << hex0x32(rs1) << " + " << hex0x32(imm_i) << ")) = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1271,7 +1271,7 @@ void rv32i::exec_ori(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " ori     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a8: 4d266213 ori x4,x12,1234 // x4 = 0xf0f0f0f0 | 0x000004d2 = 0xf0f0f4f2
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " | "
@@ -1303,11 +1303,11 @@ void rv32i::exec_slli(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " slli     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b0: 00c69213 slli x4,x13,12 // x4 = 0xf0f0f0f0 << 12 = 0x0f0f0000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " << "
-             << hex0x32(imm_i)
+             << (imm_i)
              << " = "
              << hex0x32(res);
         *pos << std::endl;
@@ -1330,11 +1330,11 @@ void rv32i::exec_slti(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " slti     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 0000009c: 4d262213 slti x4,x12,1234 // x4 = (0xf0f0f0f0 < 1234) ? 1 : 0 = 0x00000001
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = ("
              << hex0x32(rs1)
-             << " <U "
-             << hex0x32(imm_i)
+             << " < "
+             << imm_i
              << ") ? 1 : 0 = "
              << hex0x32((rs1 < imm_i) ? 1 : 0);
         *pos << std::endl;
@@ -1357,11 +1357,11 @@ void rv32i::exec_sltiu(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " sltiu     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a0: 4d263213 sltiu x4,x12,1234 // x4 = (0xf0f0f0f0 <U 1234) ? 1 : 0 = 0x00000000
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = ("
              << hex0x32(rs1)
              << " <U "
-             << hex0x32(imm_i)
+             << imm_i
              << ") ? 1 : 0 = "
              << hex0x32((rs1 < imm_i) ? 1 : 0);
         *pos << std::endl;
@@ -1390,11 +1390,11 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " srai     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b8: 40c6d213 srai x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0xffff0f0f
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " >> "
-             << hex0x32(imm_i)
+             << shamt_i
              << " = "
              << hex0x32(data);
         *pos << std::endl;
@@ -1406,7 +1406,7 @@ void rv32i::exec_srai(uint32_t insn, std::ostream *pos)
 
 void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
 {
-    int32_t rs1 = this->regs.get(get_rs1(insn));
+    uint32_t rs1 = (uint32_t)this->regs.get(get_rs1(insn));
     int32_t imm_i = get_imm_i(insn);
 
     // 5 LSB of imm_i is shamt_i
@@ -1423,11 +1423,11 @@ void rv32i::exec_srli(uint32_t insn, std::ostream *pos)
         std::string s = render_itype_alu(insn, " srli     ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000b4: 00c6d213 srli x4,x13,12 // x4 = 0xf0f0f0f0 >> 12 = 0x000f0f0f
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " >> "
-             << hex0x32(imm_i)
+             << (imm_i)
              << " = "
              << hex0x32(data);
         *pos << std::endl;
@@ -1450,10 +1450,10 @@ void rv32i::exec_xori(uint32_t insn, std::ostream *pos)
 
     if (pos)
     {
-        std::string s = render_itype_alu(insn, " xori     ", get_imm_i(insn));
+        std::string s = render_itype_alu(insn, " xori    ", get_imm_i(insn));
         s.resize(instruction_width, ' ');
         // 000000a4: 4d264213 xori x4,x12,1234 // x4 = 0xf0f0f0f0 ^ 0x000004d2 = 0xf0f0f422
-        *pos << s << "// "
+        *pos << s << "          // "
              << "x" << get_rd(insn) << " = "
              << hex0x32(rs1)
              << " ^ "
@@ -1485,7 +1485,7 @@ void rv32i::exec_sb(uint32_t insn, std::ostream *pos)
         // 0000008c: 0e500ea3 sb x5,253(x0) // m8(0x00000000 + 0x000000fd) = 0x000000ff
 
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "m8(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1507,7 +1507,7 @@ void rv32i::exec_sh(uint32_t insn, std::ostream *pos)
         std::string s = render_stype(insn, " sh     ");
         // 00000090: 0e501823 sh x5,240(x0) // m16(0x00000000 + 0x000000f0) = 0x0000ffff
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "m16(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1520,8 +1520,13 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
     int32_t rs1 = this->regs.get(get_rs1(insn));
     int32_t imm_s = get_imm_s(insn);
     uint32_t addr = rs1 + imm_s;
-    uint32_t data = (uint32_t)get_rs2(insn);
+
+    // uint32_t data = (uint32_t)get_rs2(insn);
+    int32_t data = this->regs.get(get_rs2(insn));
+
     this->mem->set8(addr, data);
+
+    // std::cout << "imm_s : " << imm_s << "\taddr : " << addr << "\t rs1 :" << rs1 << "\tdata : " << data << std::endl;
 
     if (pos)
     {
@@ -1529,7 +1534,7 @@ void rv32i::exec_sw(uint32_t insn, std::ostream *pos)
         std::string s = render_stype(insn, " sw     ");
         // 00000094: 0e502a23 sw x5,244(x0) // m32(0x00000000 + 0x000000f4) = 0xffffffff
         s.resize(instruction_width, ' ');
-        *pos << s << "//  ";
+        *pos << s << "          // ";
         *pos << "m32(" << hex0x32(rs1) << " + " << hex0x32(imm_s) << ") = " << hex0x32(data);
         *pos << std::endl;
     }
@@ -1555,7 +1560,7 @@ void rv32i::exec_beq(uint32_t insn, std::ostream *pos)
         std::string s = render_btype(insn, " beq    ");
         s.resize(instruction_width, ' ');
         // 00000030: 00000463 beq x0,x0,0x38 // pc += (0x00000000 == 0x00000000 ? 0x00000008 : 4) = 0x00000038
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " == " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1579,7 +1584,7 @@ void rv32i::exec_bge(uint32_t insn, std::ostream *pos)
         s.resize(instruction_width, ' ');
         // 00000024: fe0558e3 bge x10,x0,0x14 //
         // pc += (0xf0f0f0f0 >= 0x00000000 ? 0xfffffff0 : 4) = 0x00000028
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " >= " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1602,7 +1607,7 @@ void rv32i::exec_bgeu(uint32_t insn, std::ostream *pos)
         std::string s = render_btype(insn, " bgeu    ");
         s.resize(instruction_width, ' ');
         // 0000002c: fea074e3 bgeu x0,x10,0x14 // pc += (0x00000000 >=U 0xf0f0f0f0 ? 0xffffffe8 : 4) = 0x00000030
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " >=U " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1626,7 +1631,7 @@ void rv32i::exec_blt(uint32_t insn, std::ostream *pos)
         s.resize(instruction_width, ' ');
         // 00000020: fe004ae3 blt x0,x0,0x14 //
         // pc += (0x00000000 < 0x00000000 ? 0xfffffff4 : 4) = 0x00000024
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " < " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1649,7 +1654,7 @@ void rv32i::exec_bltu(uint32_t insn, std::ostream *pos)
         std::string s = render_btype(insn, " bltu    ");
         s.resize(instruction_width, ' ');
         // 00000028: fe0066e3 bltu x0,x0,0x14 // pc += (0x00000000 <U 0x00000000 ? 0xffffffec : 4) = 0x0000002c
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " <U " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1674,7 +1679,7 @@ void rv32i::exec_bne(uint32_t insn, std::ostream *pos)
         // s0000001c: feb59ce3 bne x11,x11,0x14
         // // pc += (0xf0f0f0f0 != 0xf0f0f0f0 ? 0xfffffff8 : 4) = 0x00000020
 
-        *pos << s << "//  ";
+        *pos << s << "          // ";
 
         *pos << "pc += (" << hex0x32(rs1) << " != " << hex0x32(rs2) << " ? "
              << hex0x32(imm_b) << " : "
@@ -1707,7 +1712,7 @@ void rv32i::exec_fence(uint32_t insn, std::ostream *pos)
     {
         std::string s = render_fence(insn);
         s.resize(instruction_width, ' ');
-        *pos << s << "//  fence";
+        *pos << s << "          // fence";
         *pos << std::endl;
     }
     // increment pc
@@ -1727,11 +1732,11 @@ void rv32i::exec_error(uint32_t insn, std::ostream *pos)
  * String render formatting functions
  * **************************************/
 
-std::string rv32i::render_illegal_insn() const
+std::string rv32i::render_illegal_insn(uint32_t insn) const
 {
     std::ostringstream os;
 
-    os << " ERRROR: UNIMPLEMENTED INSTRUCTION";
+    os << hex32(insn) << "  ERROR: UNIMPLEMENTED INSTRUCTION";
 
     return os.str();
 }

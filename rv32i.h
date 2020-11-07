@@ -161,7 +161,7 @@ public:
     void exec_bne(uint32_t insn, std::ostream *pos);
 
     // String render formatting
-    std::string render_illegal_insn() const;
+    std::string render_illegal_insn(uint32_t insn) const;
     std::string render_lui(uint32_t insn) const;
     std::string render_auipc(uint32_t insn) const;
     std::string render_jal(uint32_t insn) const;
