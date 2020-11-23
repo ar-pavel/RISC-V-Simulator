@@ -1,16 +1,17 @@
-# RISC-V-Simulator ![version](https://img.shields.io/github/go-mod/go-version/ar-pavel/RISC-V-Simulator)
+# RISC-V-Simulator
 
 ## Overview
 
-this is overview
+RISC-V (pronounced "risk-five") is an open standard instruction set architecture (ISA) based on established reduced instruction set computer (RISC) principles.<br>
+This is a single core based implementation of RISC-V ISS feature specifications and covers all permitted configurations.
 
 ## How to build
 
-### Build requirements
+#### Build requirements
 
 Any `C` compiler, Clang, GCC, for example.
 
-### Build
+#### Build
 
 ```shell
 git     clone   https://github.com/ar-pavel/RISC-V-Simulator.git
@@ -19,6 +20,8 @@ cd  RISC-V-Simulator
 ```
 
 ## Supported Operations
+
+operations templated that are supported by this simulator:
 
 | Usage Template                          | Type | Description                         | Detailed Description                  |
 | --------------------------------------- | :--: | ----------------------------------- | ------------------------------------- |
@@ -59,9 +62,3 @@ cd  RISC-V-Simulator
 | sw &emsp; &emsp; rs2, imm(rs1)          |  S   | Store Word                          | m32(rs1+imm s) ← rs2[31:0], pc ← pc+4 |
 | xor &ensp; &ensp; &ensp; rd, rs1, rs2   |  R   | Exclusive OR                        | rd ← rs1 ^ rs2, pc ← pc+4             |
 | xori &emsp; &nbsp; rd, rs1, imm         |  I   | Exclusive OR Immediate              | rd ← rs1 ^ imm i, pc ← pc+4           |
-
-## Example
-
-```C++
-using namespace std;
-```
