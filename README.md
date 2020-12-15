@@ -21,7 +21,7 @@ cd  RISC-V-Simulator
 
 ## Supported Operations
 
-operations templates that are supported by this simulator:
+Operation templates that are supported by this simulator:
 
 | Usage Template &emsp; &emsp; &emsp; &emsp; &emsp; | Type | Description &emsp;                  | Detailed Description &emsp; &emsp; &emsp; &emsp; &emsp; |
 | ------------------------------------------------- | :--: | ----------------------------------- | ------------------------------------------------------- |
